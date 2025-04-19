@@ -1,0 +1,22 @@
+.roboChat-floating-icon {
+  position: fixed;
+  min-width: 50px;
+  width: 5vw;
+  aspect-ratio: 1/1;
+  border-radius: 1vw;
+  background-color: blue;
+  bottom: 3vw;
+  right: 3vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  & > svg {
+    aspect-ratio: 1/1;
+    height: 70%;
+    fill: white;
+  }
+}
+
+
