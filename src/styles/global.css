@@ -1,7 +1,111 @@
+emoji-picker {
+  position: fixed;
+  z-index: 9999999999;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+
+#roboChat-imgToUploadContainer {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  padding: .5rem 1rem;
+  background-color: lightgray;
+  cursor: auto;
+  border-radius: 10px;
+  
+
+  & > label {
+    width: fit-content;
+  }
+
+  & > img {
+    width: 1rem;
+    cursor: pointer;
+    margin-left: .5rem;
+  }
+}
+
+/*#roboChat-btnSendMsg {
+  padding: 0 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-left: 1px solid lightgray;
+  flex: 1;
+}*/
+
+#roboChat-divChatLoadingline {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, lightgray, lightgray, lightgray, lightgray, white, lightgray, lightgray, lightgray, lightgray, lightgray 100%);
+  background-size: 200% auto;
+  animation: roboChat-chatboxLineLoading 1s linear infinite;
+  position: absolute;
+}
+
+#roboChat-divChatViewMsg {
+  flex: 1;
+  width: 100%;
+  justify-content: end;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  & > .roboChat-agent,.roboChat-user {
+    padding: 3% 5%;
+    display: flex;
+    flex-direction: column;
+
+    & > .roboChat-imgContainer {
+      width: 90%;
+      padding: 3%;
+      background-color: #0de30d;
+      border-radius: 10px;
+
+      & > img {
+        width: 100%
+      }
+    }
+
+    & > label {
+      padding: 3% 5%;
+      margin: .5% 0;
+      width: fit-content;
+      border-radius: 10px;
+      white-space: pre-line;
+    }
+
+    &.roboChat-user {
+      align-items: end;
+      
+      & > label {
+        background-color: #0de30d;
+      }
+    }
+
+    &.roboChat-agent > label {
+        background-color: lightgray;
+    }
+  }
+
+  & > .roboChat-msg{
+    display: flex;
+    justify-content: center;
+    color: gray;
+  }
+}
+
+
 .roboChat-floating-icon {
   position: fixed;
   min-width: 50px;
-  width: 5vw;
+  width: 3vw;
   aspect-ratio: 1/1;
   border-radius: 1vw;
   background-color: blue;
@@ -11,11 +115,118 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  z-index: 999999999;
+
+  &.roboChat-hidden {
+    display: none;
+  }
 
   & > svg {
     aspect-ratio: 1/1;
     height: 70%;
     fill: white;
+  }
+}
+
+.roboChat-floating-chatbox {
+  position: fixed;
+  background-color: white;
+  bottom: 3vw;
+  right: 3vw;
+  min-width: 350px;
+  aspect-ratio: 3/5;
+  width: 20vw;
+  border-radius: 10px;
+  z-index: 9999999999;
+  box-shadow: 5px 0 20px 5px rgba(0, 0, 0, .1); 
+
+  &.roboChat-hidden {
+    display: none;
+  }
+
+  & > div:first-of-type {
+    height: 10%;
+    background-color: blue;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 5%;
+    align-items: center;
+    overflow: auto;
+
+    & > span {
+      cursor: pointer;
+    }
+    
+
+    & > span {
+      float: right;
+    }
+  }
+
+  & > div:nth-of-type(2) {
+    height: 75%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+
+  & > div:last-of-type {
+    height: 15%;
+    border: 1px solid lightgray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & > div {
+      display: flex;
+      align-items: center;
+      background-color: #ececec;
+      border-radius: 25rem;
+      height: 70%;
+      width: 95%;
+      justify-content: center;
+      gap: .5rem;
+
+
+      & > span, label {
+        cursor: pointer;
+        width: 7%;
+
+        & > input {
+          display: none;
+        }
+      }
+
+      & > div {
+        width: 60%;
+
+        & > input {
+          border: none;
+          background-color: inherit;
+          font-size: 1.25rem;
+          
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+
+    }
+  }
+}
+
+.roboChat-hidden {
+  display: none !important;
+}
+
+@keyframes roboChat-chatboxLineLoading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
   }
 }
 
