@@ -1,6 +1,10 @@
 declare var io: any
 
 class RoboChat {
+  private onHoldScriptInd: number = 0;
+  private onHoldScript: Array<string> =  [];
+  private onHoldInterval: any;
+  private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -95,13 +99,36 @@ class RoboChat {
       })
 
 
-      this.socket.on(`on-hold-chat-${this.clientUserId}`,(isOnHold: boolean)=> {
-        (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = isOnHold;
-        (document.querySelector("#roboChat-btnSendMsg") as HTMLButtonElement)!.disabled = isOnHold;
+      this.socket.on(`on-hold-chat-${this.clientUserId}`,(data: any)=> {
+        (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = data.isOnHold;
+        (document.querySelector("#roboChat-btnSendMsg") as HTMLButtonElement)!.disabled = data.isOnHold;
+        
+        clearInterval(this.onHoldInterval);
+
+        if(data.isOnHold) {
+          this.onHoldScriptInd = 0;
+          this.onHoldScript = data.onholdScript;
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>chat is currently on hold</label></div>`;
+          this.onHoldInterval = setInterval(()=>{
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>${this.onHoldScript[this.onHoldScriptInd]}</label></div>`;
+            this.onHoldScriptInd++;
+            if(this.onHoldScriptInd === this.onHoldScript.length) {
+              this.onHoldScriptInd = 0;
+            }
+          },data.onholdTime)
+        }
+        else {
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>chat has resumed</label></div>`;
+        }
+
       })
 
       this.socket.on(`chat-transfer-${this.clientUserId}`,(transferToTeamName: string)=> {
         document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>transfering you to a new agent</label></div>`;
+      })
+
+      this.socket.on(`agent-accept-chat-${this.clientUserId}`,(data: any)=> {
+        document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>agent ${data.agentName} connected</label></div>`;
       })
     })
 
@@ -187,12 +214,24 @@ class RoboChat {
         document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollHeight;
       }
 
-
-      this.socket.emit('client-send-msg',{
-        "clientUserId": this.clientUserId,
-        "originUrl": this.originUrl,
-        "msg": this.inMsg
+      fetch(this.serverUrl+'/msg-from-client',{
+        method: "POST",
+        headers: {
+          "Content-Type": 'application/json'
+        },
+        body: JSON.stringify({
+          "clientUserId": this.clientUserId,
+          "originUrl": this.originUrl,
+          "msg": this.inMsg
+        })
       })
+      .then(res=> res.json());
+
+      //this.socket.emit('client-send-msg',{
+      //  "clientUserId": this.clientUserId,
+      //  "originUrl": this.originUrl,
+      //  "msg": this.inMsg
+      //})
 
       this.inMsg = "";
       (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value = this.inMsg;

@@ -2,6 +2,9 @@
 class RoboChat {
     constructor(strSelector, options) {
         var _a, _b, _c;
+        this.onHoldScriptInd = 0;
+        this.onHoldScript = [];
+        this.serverUrl = 'http://localhost:8000/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('http://localhost:3000');
@@ -75,12 +78,31 @@ class RoboChat {
                     document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-${vle.user_role === 'client' ? "user" : "agent"}"><label>${vle.message}</label></div>`;
                 });
             });
-            this.socket.on(`on-hold-chat-${this.clientUserId}`, (isOnHold) => {
-                document.querySelector("#roboChat-inMsg").disabled = isOnHold;
-                document.querySelector("#roboChat-btnSendMsg").disabled = isOnHold;
+            this.socket.on(`on-hold-chat-${this.clientUserId}`, (data) => {
+                document.querySelector("#roboChat-inMsg").disabled = data.isOnHold;
+                document.querySelector("#roboChat-btnSendMsg").disabled = data.isOnHold;
+                clearInterval(this.onHoldInterval);
+                if (data.isOnHold) {
+                    this.onHoldScriptInd = 0;
+                    this.onHoldScript = data.onholdScript;
+                    document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>chat is currently on hold</label></div>`;
+                    this.onHoldInterval = setInterval(() => {
+                        document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>${this.onHoldScript[this.onHoldScriptInd]}</label></div>`;
+                        this.onHoldScriptInd++;
+                        if (this.onHoldScriptInd === this.onHoldScript.length) {
+                            this.onHoldScriptInd = 0;
+                        }
+                    }, data.onholdTime);
+                }
+                else {
+                    document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>chat has resumed</label></div>`;
+                }
             });
             this.socket.on(`chat-transfer-${this.clientUserId}`, (transferToTeamName) => {
                 document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>transfering you to a new agent</label></div>`;
+            });
+            this.socket.on(`agent-accept-chat-${this.clientUserId}`, (data) => {
+                document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>agent ${data.agentName} connected</label></div>`;
             });
         });
         this.socket.on(`agent-send-msg-${this.clientUserId}`, (data) => {
@@ -143,11 +165,23 @@ class RoboChat {
             if (isScrollBtm) {
                 document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight;
             }
-            this.socket.emit('client-send-msg', {
-                "clientUserId": this.clientUserId,
-                "originUrl": this.originUrl,
-                "msg": this.inMsg
-            });
+            fetch(this.serverUrl + '/msg-from-client', {
+                method: "POST",
+                headers: {
+                    "Content-Type": 'application/json'
+                },
+                body: JSON.stringify({
+                    "clientUserId": this.clientUserId,
+                    "originUrl": this.originUrl,
+                    "msg": this.inMsg
+                })
+            })
+                .then(res => res.json());
+            //this.socket.emit('client-send-msg',{
+            //  "clientUserId": this.clientUserId,
+            //  "originUrl": this.originUrl,
+            //  "msg": this.inMsg
+            //})
             this.inMsg = "";
             document.querySelector('#roboChat-inMsg').value = this.inMsg;
         });
