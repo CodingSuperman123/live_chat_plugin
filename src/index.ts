@@ -137,7 +137,12 @@ class RoboChat {
         }
 
 
-        document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-${chatType}"><label>${val.message}</label></div>`;
+        if(!val.message && val.media_url){
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-${chatType}"><div class="roboChat-imgContainer"><img src="${val.media_url}"/></div></div>`;
+        }
+        else{
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-${chatType}"><label>${val.message}</label></div>`;
+        }
       })
 
 
@@ -253,10 +258,10 @@ class RoboChat {
     document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev=>{
 
       let msgToSend = this.inMsg;
-      let msgBody: any = {
-        "clientUserId": this.clientUserId,
-        "originUrl": this.originUrl
-      }
+      let formData = new FormData(); 
+      formData.append('clientUserId', this.clientUserId);
+      formData.append('originUrl', this.originUrl);
+
 
 
       if(document.querySelector("#roboChat-divFileToUpload.roboChat-hidden")){
@@ -268,7 +273,7 @@ class RoboChat {
             </div>    
           `
         })
-        msgBody.msg = this.inMsg;
+        formData.append('msg',this.inMsg);
         this.inMsg = "";
         (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value = this.inMsg;
       }
@@ -293,19 +298,15 @@ class RoboChat {
           document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
         }
         reader.readAsDataURL(file);
-        msgBody.file = (document.querySelector("#roboChat-inFile") as HTMLInputElement)!.value;
+        formData.append('file',(document.querySelector('#roboChat-inFile')! as HTMLInputElement)!.files![0]);
       }
 
-      console.log(JSON.stringify(msgBody));
 
-      //fetch(this.serverUrl+'/msg-from-client',{
-      //  method: "POST",
-      //  headers: {
-      //    "Content-Type": 'application/json'
-      //  },
-      //  body: JSON.stringify(msgBody)
-      //})
-      //.then(res=> res.json());
+      fetch(this.serverUrl+'/msg-from-client',{
+        method: "POST",
+        body: formData
+      })
+      .then(res=> res.json());
 
 
     })
