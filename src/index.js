@@ -169,7 +169,7 @@ class RoboChat {
                 }
                 if (chatType === 'user') {
                     const lastUserChat = document.querySelector('.roboChat-user:last-of-type');
-                    if (val.status === 'sent') {
+                    if (val.status === 'delivered') {
                         lastUserChat.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
                     }
                     else if (val.status === 'read') {
@@ -208,11 +208,23 @@ class RoboChat {
                 });
             });
             this.socket.on(`agent-send-msg-${this.clientUserId}`, (data) => {
+                const currDate = new Date();
+                const timeFormat = currDate.toLocaleString("en-US", {
+                    timeZone: this.timezone,
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
+                });
                 this.scrollBtm(() => {
                     this.inMsg = document.querySelector('#roboChat-inMsg').value;
                     document.querySelector('#roboChat-divChatViewMsg').innerHTML += `
             <div class="roboChat-agent">
-              <label>${data.data.agentMsg}</label>
+              <div>
+                <label>${data.data.agentMsg}</label>
+                <span>
+                  ${`<span>${timeFormat}</span>`}
+                </span>
+              </div>
             </div>    
           `;
                 });

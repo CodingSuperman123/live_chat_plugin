@@ -218,7 +218,7 @@ button {
   }
 
   &.roboChat-hidden {
-    display: none;
+    animation: shrinkToCenter 0.1s linear
   }
 
   & > div:first-of-type {
@@ -312,6 +312,18 @@ button {
   }
 }
 
+@keyframes shrinkToCenter {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+        display: none;
+    }
+}
+
 @keyframes expandFromCenter {
     0% {
         transform: scale(0);
@@ -322,5 +334,6 @@ button {
         opacity: 1;
     }
 }
+
 
 
