@@ -71,34 +71,97 @@ button {
 
     & > .roboChat-imgContainer {
       width: 90%;
-      /*padding: 2%;
-      background-color: rgb(22, 46, 98);*/
+      padding: .25rem;
+      background-color: rgb(22, 46, 98);
+      border-radius: 10px;
       display: flex;
+      color: white;
+      flex-direction: column;
+      gap: .25rem;
 
       & > img {
         width: 100%;
         border-radius: 10px;
       }
+
+      & > div {
+        display: flex;
+        justify-content: end;
+        opacity: .8;
+        font-size: .75rem;
+        padding: 0 .25rem;
+        align-items: center;
+
+        & > .tickIcon {
+          height: 1rem;
+          width: 1rem;
+
+          & polyline {
+            stroke: white;
+          }
+        }
+
+        & > .doubleTickIcon {
+          height: 1.25rem;
+          width: 1.25rem;
+
+          & path{
+            fill: white;
+          }
+
+        }
+      }
     }
 
-    & > label {
-      padding: 3% 5%;
+    & > div {
+      padding: 3% 2% 3% 5%;
       margin: .5% 0;
       width: fit-content;
       border-radius: 10px;
       white-space: pre-line;
+      display:flex;
+      gap: 1.5rem;
+
+
+      & > span {
+        display: flex;
+        align-items: center;
+        font-size: .75rem;
+        align-items: center;
+        margin-bottom: -1rem;
+        opacity: .8;
+
+        & > .tickIcon {
+          height: 1rem;
+          width: 1rem;
+
+          & polyline {
+            stroke: white;
+          }
+        }
+
+        & > .doubleTickIcon {
+          height: 1.25rem;
+          width: 1.25rem;
+
+          & path{
+            fill: white;
+          }
+
+        }
+      }
     }
 
     &.roboChat-user {
       align-items: end;
       
-      & > label {
+      & > div {
         background-color: rgb(22, 46, 98);
         color: white;
       }
     }
 
-    &.roboChat-agent > label {
+    &.roboChat-agent > div {
         background-color: white;
         color: #353535;
     }
@@ -149,6 +212,10 @@ button {
   border-radius: 10px;
   z-index: 9999999999;
   box-shadow: 0 0 30px 10px lightgray; 
+
+  &:not(roboChat-hidden) {
+    animation: expandFromCenter 0.1s linear
+  }
 
   &.roboChat-hidden {
     display: none;
@@ -243,6 +310,17 @@ button {
   100% {
     background-position: 0% 50%;
   }
+}
+
+@keyframes expandFromCenter {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 
