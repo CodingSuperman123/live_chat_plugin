@@ -104,17 +104,11 @@ class RoboChat {
   }
 
   constructor(strSelector: string, options: { position?: string, originUrl?: string, clientEmail?: string }) {
-
     this.options = options?? this.defaultOpt;  
     this.element = document.querySelector(strSelector);
     this.element!.classList.add("roboChat");
-    this.originUrl = this.options.originUrl??window.location.origin;
-    this.clientEmail = this.options.clientEmail;
-
-
-    //Func to be remove
-    this.originUrl = 'localhost';
-    this.clientEmail = 'leeweijie41200@gmail.com'
+    this.originUrl = options.originUrl??window.location.origin;
+    this.clientEmail = options.clientEmail;
 
 
     fetch('http://localhost:8000/api/get-client-chat-history?'+new URLSearchParams({
