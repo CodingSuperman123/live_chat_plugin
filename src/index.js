@@ -5,7 +5,7 @@ class RoboChat {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'http://localhost:8000/api';
+        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('http://localhost:3000');
@@ -99,7 +99,7 @@ class RoboChat {
         this.element.classList.add("roboChat");
         this.originUrl = (_a = options.originUrl) !== null && _a !== void 0 ? _a : window.location.origin;
         this.clientEmail = options.clientEmail;
-        fetch('http://localhost:8000/api/get-client-chat-history?' + new URLSearchParams({
+        fetch(this.serverUrl + '/get-client-chat-history?' + new URLSearchParams({
             "email": (_b = this.clientEmail) !== null && _b !== void 0 ? _b : "",
             "role": "client",
             "originUrl": (_c = this.originUrl) !== null && _c !== void 0 ? _c : ""

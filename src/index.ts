@@ -5,7 +5,7 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'http://localhost:8000/api';
+  private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -111,7 +111,7 @@ class RoboChat {
     this.clientEmail = options.clientEmail;
 
 
-    fetch('http://localhost:8000/api/get-client-chat-history?'+new URLSearchParams({
+    fetch(this.serverUrl+'/get-client-chat-history?'+new URLSearchParams({
         "email": this.clientEmail??"",
         "role": "client",
         "originUrl": this.originUrl??""
