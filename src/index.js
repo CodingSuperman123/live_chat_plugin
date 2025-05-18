@@ -102,7 +102,7 @@ class RoboChat {
         //Func to be remove
         this.originUrl = 'localhost';
         this.clientEmail = 'leeweijie41200@gmail.com';
-        fetch('http://localhost:8000/api/get-chat-history?' + new URLSearchParams({
+        fetch('http://localhost:8000/api/get-client-chat-history?' + new URLSearchParams({
             "email": (_b = this.clientEmail) !== null && _b !== void 0 ? _b : "",
             "role": "client",
             "originUrl": (_c = this.originUrl) !== null && _c !== void 0 ? _c : ""
@@ -187,6 +187,17 @@ class RoboChat {
                     document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>chat is currently on-hold</label></div>`;
                     this.onHoldInterval = setInterval(() => {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>${this.onHoldScript[this.onHoldScriptInd]}</label></div>`;
+                        fetch(this.serverUrl + '/on-hold-script', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                clientUserId: this.clientUserId,
+                                msg: this.onHoldScript[this.onHoldScriptInd]
+                            })
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                        });
                         this.onHoldScriptInd++;
                         if (this.onHoldScriptInd === this.onHoldScript.length) {
                             this.onHoldScriptInd = 0;
