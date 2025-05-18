@@ -99,6 +99,7 @@ class RoboChat {
         this.element.classList.add("roboChat");
         this.originUrl = (_a = options.originUrl) !== null && _a !== void 0 ? _a : window.location.origin;
         this.clientEmail = options.clientEmail;
+        console.log(this.clientEmail);
         fetch('http://localhost:8000/api/get-client-chat-history?' + new URLSearchParams({
             "email": (_b = this.clientEmail) !== null && _b !== void 0 ? _b : "",
             "role": "client",

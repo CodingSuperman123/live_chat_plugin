@@ -111,6 +111,7 @@ class RoboChat {
     this.clientEmail = options.clientEmail;
 
 
+    console.log(this.clientEmail);
     fetch('http://localhost:8000/api/get-client-chat-history?'+new URLSearchParams({
         "email": this.clientEmail??"",
         "role": "client",
