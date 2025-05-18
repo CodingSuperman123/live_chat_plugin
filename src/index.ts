@@ -14,7 +14,7 @@ class RoboChat {
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
-  private socket = io('http://localhost:3000');
+  private socket = io('https://e212-2001-f40-962-d8fe-46a2-e2c8-c21e-675.ngrok-free.app');
   private element: HTMLElement | null;
   private floatingChatIcon: string = `
     <div class="roboChat-floating-chatbox roboChat-hidden">

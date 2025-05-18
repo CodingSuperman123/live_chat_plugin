@@ -8,7 +8,7 @@ class RoboChat {
         this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/';
         this.currentMsg = [];
         this.maxMsgCount = 20;
-        this.socket = io('http://localhost:3000');
+        this.socket = io('https://e212-2001-f40-962-d8fe-46a2-e2c8-c21e-675.ngrok-free.app');
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
       <div>
