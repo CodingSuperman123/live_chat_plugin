@@ -5,7 +5,7 @@ class RoboChat {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/';
+        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('https://e212-2001-f40-962-d8fe-46a2-e2c8-c21e-675.ngrok-free.app');
