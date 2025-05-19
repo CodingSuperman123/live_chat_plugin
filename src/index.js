@@ -100,6 +100,7 @@ class RoboChat {
         this.element.classList.add("roboChat");
         this.originUrl = (_a = options.originUrl) !== null && _a !== void 0 ? _a : window.location.origin;
         this.clientEmail = options.clientEmail;
+        console.log(options.originUrl, options.clientEmail);
         fetch(this.serverUrl + '/get-client-chat-history?' + new URLSearchParams({
             "email": (_b = this.clientEmail) !== null && _b !== void 0 ? _b : "",
             "role": "client",
@@ -332,48 +333,45 @@ class RoboChat {
                     chatfield.classList.remove("roboChat-hidden");
                     startButton.classList.add("roboChat-hidden");
                     // Add agent message
-                    messageView.innerHTML += `
-          <div class="roboChat-agent" id="chat-form">
-            <div class="roboChat-container">
-              <div class="roboChat-form" aria-label="Chat start form">
-                <h2 class="chatform_header">Let's chat! Fill in a few details to get started.</h2>
-                <div class="roboChat-input-group">
-                  <label for="roboChat-name">Name:</label>
-                  <input 
-                    type="text" 
-                    id="roboChat-name" 
-                    name="roboChat-name"
-                    class="roboChat-input" 
-                    placeholder="Enter your name" 
-                    required 
-                    aria-required="true"
-                  >
-                </div>
-
-                <div class="roboChat-input-group">
-                  <label for="roboChat-email">E-mail:</label>
-                  <input 
-                    type="email" 
-                    id="roboChat-email" 
-                    name="roboChat-email"
-                    class="roboChat-input" 
-                    placeholder="Enter your email" 
-                    required 
-                    aria-required="true"
-                  >
-                </div>
-
-                <div class="button-wrapper">
-                <button type="button" id="roboChat-start-inner" class="roboChat-button">Start the Chat</button>
-                </div>
-              </div>
-
-              <div class="roboChat-timestamp">
-                <span id="roboChat-time">${timeFormat}</span>
-              </div>
-            </div>
-          </div>
-      `;
+                    //messageView.innerHTML += `
+                    //    <div class="roboChat-agent" id="chat-form">
+                    //      <div class="roboChat-container">
+                    //        <div class="roboChat-form" aria-label="Chat start form">
+                    //          <h2 class="chatform_header">Let's chat! Fill in a few details to get started.</h2>
+                    //          <div class="roboChat-input-group">
+                    //            <label for="roboChat-name">Name:</label>
+                    //            <input 
+                    //              type="text" 
+                    //              id="roboChat-name" 
+                    //              name="roboChat-name"
+                    //              class="roboChat-input" 
+                    //              placeholder="Enter your name" 
+                    //              required 
+                    //              aria-required="true"
+                    //            >
+                    //          </div>
+                    //          <div class="roboChat-input-group">
+                    //            <label for="roboChat-email">E-mail:</label>
+                    //            <input 
+                    //              type="email" 
+                    //              id="roboChat-email" 
+                    //              name="roboChat-email"
+                    //              class="roboChat-input" 
+                    //              placeholder="Enter your email" 
+                    //              required 
+                    //              aria-required="true"
+                    //            >
+                    //          </div>
+                    //          <div class="button-wrapper">
+                    //          <button type="button" id="roboChat-start-inner" class="roboChat-button">Start the Chat</button>
+                    //          </div>
+                    //        </div>
+                    //        <div class="roboChat-timestamp">
+                    //          <span id="roboChat-time">${timeFormat}</span>
+                    //        </div>
+                    //      </div>
+                    //    </div>
+                    //`;
                     // // Add event listener for the inner start button - ADD THIS CODE HERE
                     (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
                         const nameInput = document.getElementById('roboChat-name');
@@ -435,6 +433,8 @@ class RoboChat {
             let latestMsgElement;
             this.inMsg = document.querySelector('#roboChat-inMsg').value;
             const files = document.querySelector('#roboChat-inFile').files;
+            document.querySelector('#roboChat-inFile').value = '';
+            console.log(document.querySelector('#roboChat-inFile').value);
             if (this.inMsg || files.length) {
                 const formData = new FormData();
                 formData.append('clientUserId', String(this.clientUserId));
