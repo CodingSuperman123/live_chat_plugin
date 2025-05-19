@@ -5,7 +5,8 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com';
+  private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+  //private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
