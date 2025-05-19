@@ -99,7 +99,7 @@ button:active {
 }
 
 /* Enhanced file upload container */
-#roboChat-imgToUploadContainer {
+/* #roboChat-imgToUploadContainer {
   width: fit-content;
   display: flex;
   align-items: center;
@@ -134,8 +134,132 @@ button:active {
     background-color: var(--robo-danger);
     transform: scale(1.1);
   }
+} */
+
+/* File upload container styles */
+#roboChat-divFileToUpload {
+  margin: 10px 0;
+  width: 280px;
 }
 
+#roboChat-divFileToUpload.roboChat-hidden {
+  display: none;
+}
+
+/* File upload UI container */
+.roboChat-fileUpload-wrapper {
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 240px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Status indicator row */
+.roboChat-fileUpload-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.roboChat-fileUpload-status-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.roboChat-fileUpload-status-icon {
+  background-color: #4CAF50;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roboChat-fileUpload-status-icon svg {
+  width: 10px;
+  height: 10px;
+  fill: white;
+}
+
+.roboChat-fileUpload-status-text span {
+  font-size: 12px;
+  color: #555;
+}
+
+.roboChat-fileUpload-delete {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  fill: #ff3b30;
+}
+
+.roboChat-fileUpload-delete svg {
+  width: 16px;
+  height: 16px;
+  fill: #777;
+}
+
+.roboChat-fileUpload-delete:hover svg {
+  fill: #ff3b30;
+}
+
+/* File content area */
+#roboChat-imgToUploadContainer {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #e1e1e1;
+}
+
+.roboChat-fileUpload-icon {
+  margin-right: 10px;
+  width: 20px;
+  height: 20px;
+  fill: #8c8c8c;
+}
+
+#roboChat-imgToUploadContainer > label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+#roboChat-imgToUploadContainer > img {
+  display: none; /* Hide the original close icon */
+}
+
+/* Send file button */
+.roboChat-send-file-btn {
+  width: 100%;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.roboChat-send-file-btn:hover {
+  background-color: #1669d6;
+}
 
 
 
@@ -222,7 +346,7 @@ button:active {
       border: 1px solid rgba(255, 255, 255, 0.1);
 
       &:hover {
-        transform: translateY(-4px) scale(1.02);
+        /* transform: translateY(-4px) scale(1.02); */
         box-shadow: 0 8px 30px rgba(22, 46, 98, 0.35);
       }
 
@@ -234,7 +358,7 @@ button:active {
       }
 
       &:hover > img {
-        transform: scale(1.05);
+        /* transform: scale(1.05); */
       }
 
       & > div {
@@ -606,7 +730,7 @@ button:active {
           position: absolute;
           inset: 0;
           border-radius: 50%;
-          background: linear-gradient(135deg, var(--robo-accent), var(--robo-primary));
+          /* background: linear-gradient(135deg, var(--robo-accent), var(--robo-primary)); */
           opacity: 0;
           transform: scale(0);
           transition: all 0.3s ease;
@@ -966,3 +1090,4 @@ span:focus-visible {
   background-color: #ddd;
   border-radius: 4px;
 }
+
