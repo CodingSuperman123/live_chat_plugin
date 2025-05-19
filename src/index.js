@@ -44,7 +44,7 @@ class RoboChat {
         </div>
       </div>
       <div>
-        <div>
+        <div id="chatfield">
           <label>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
               <path d="M364.2 83.8c-24.4-24.4-64-24.4-88.4 0l-184 184c-42.1 42.1-42.1 110.3 0 152.4s110.3 42.1 152.4 0l152-152c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-152 152c-64 64-167.6 64-231.6 0s-64-167.6 0-231.6l184-184c46.3-46.3 121.3-46.3 167.6 0s46.3 121.3 0 167.6l-176 176c-28.6 28.6-75 28.6-103.6 0s-28.6-75 0-103.6l144-144c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-144 144c-6.7 6.7-6.7 17.7 0 24.4s17.7 6.7 24.4 0l176-176c24.4-24.4 24.4-64 0-88.4z"/>
@@ -66,6 +66,7 @@ class RoboChat {
             </svg>
           </span>
         </div>
+      <button id="btn-start-chat" class="roboChat-start-button">Start the Chat</button>
       </div>
     </div>
     <emoji-picker class="roboChat-hidden"></emoji-picker>
@@ -267,11 +268,105 @@ class RoboChat {
         this.initEventListeners();
     }
     initEventListeners() {
-        document.addEventListener('click', ev => {
-            if (!document.querySelector('.roboChat-floating-chatbox.roboChat-hidden') && !ev.target.closest('.roboChat-floating-chatbox') && !ev.target.closest('.roboChat-floating-icon')) {
-                document.querySelector(".roboChat-floating-icon").classList.remove('roboChat-hidden');
-                document.querySelector(".roboChat-floating-chatbox").classList.add('roboChat-hidden');
+        const chatfield = document.querySelector("#chatfield");
+        if (chatfield) {
+            chatfield.classList.add('roboChat-hidden');
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            const startButton = document.querySelector("#btn-start-chat");
+            const chatfield = document.querySelector("#chatfield");
+            const messageView = document.querySelector("#roboChat-divChatViewMsg");
+            const timeFormat = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (startButton && chatfield && messageView) {
+                startButton.addEventListener("click", () => {
+                    var _a;
+                    chatfield.classList.remove("roboChat-hidden");
+                    startButton.classList.add("roboChat-hidden");
+                    // Add agent message
+                    messageView.innerHTML += `
+          <div class="roboChat-agent" id="chat-form">
+            <div class="roboChat-container">
+              <div class="roboChat-form" aria-label="Chat start form">
+                <h2 class="chatform_header">Let's chat! Fill in a few details to get started.</h2>
+                <div class="roboChat-input-group">
+                  <label for="roboChat-name">Name:</label>
+                  <input 
+                    type="text" 
+                    id="roboChat-name" 
+                    name="roboChat-name"
+                    class="roboChat-input" 
+                    placeholder="Enter your name" 
+                    required 
+                    aria-required="true"
+                  >
+                </div>
+
+                <div class="roboChat-input-group">
+                  <label for="roboChat-email">E-mail:</label>
+                  <input 
+                    type="email" 
+                    id="roboChat-email" 
+                    name="roboChat-email"
+                    class="roboChat-input" 
+                    placeholder="Enter your email" 
+                    required 
+                    aria-required="true"
+                  >
+                </div>
+
+                <div class="button-wrapper">
+                <button type="button" id="roboChat-start-inner" class="roboChat-button">Start the Chat</button>
+                </div>
+              </div>
+
+              <div class="roboChat-timestamp">
+                <span id="roboChat-time">${timeFormat}</span>
+              </div>
+            </div>
+          </div>
+      `;
+                    // // Add event listener for the inner start button - ADD THIS CODE HERE
+                    (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+                        const nameInput = document.getElementById('roboChat-name');
+                        const emailInput = document.getElementById('roboChat-email');
+                        const name = (nameInput === null || nameInput === void 0 ? void 0 : nameInput.value.trim()) || '';
+                        const email = (emailInput === null || emailInput === void 0 ? void 0 : emailInput.value.trim()) || '';
+                        if (!name || !email) {
+                            alert('Please enter both name and email to start the chat');
+                            return;
+                        }
+                        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const formContainer = document.querySelector('#chat-form');
+                        if (formContainer) {
+                            formContainer.remove();
+                        }
+                        messageView.innerHTML += `
+          <div class="roboChat-agent">
+            <div class="roboChat-message">
+              <div class="roboChat-content">
+                Welcome, ${name}! How can I assist you today?
+              </div>
+              <div class="roboChat-timestamp">
+                <span>${currentTime}</span>
+              </div>
+            </div>
+          </div>
+        `;
+                        const userData = { name, email };
+                        console.log('User data:', userData);
+                        const chatInput = document.querySelector('.roboChat-input-area');
+                        if (chatInput) {
+                            chatInput.classList.remove('roboChat-hidden');
+                        }
+                    });
+                });
             }
+        });
+        document.addEventListener('click', ev => {
+            // if(!document.querySelector('.roboChat-floating-chatbox.roboChat-hidden') && !(ev.target! as HTMLElement).closest('.roboChat-floating-chatbox') && !(ev.target! as HTMLElement).closest('.roboChat-floating-icon')) {
+            //   document.querySelector(".roboChat-floating-icon")!.classList.remove('roboChat-hidden');
+            //   document.querySelector(".roboChat-floating-chatbox")!.classList.add('roboChat-hidden');
+            // }
             if (!document.querySelector('emoji-picker.roboChat-hidden') && !ev.target.closest('emoji-picker') && !ev.target.closest('#roboChat-btnEmoji')) {
                 document.querySelector("emoji-picker").classList.add('roboChat-hidden');
             }
