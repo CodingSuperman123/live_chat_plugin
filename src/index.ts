@@ -5,7 +5,7 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+  private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -500,28 +500,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     })
 
-    document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev=>{
-
+    document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev => {
       let latestMsgElement: HTMLElement;
       this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
       const files = (document.querySelector('#roboChat-inFile')! as HTMLInputElement)!.files;
 
-      if(this.inMsg || files!.length){
-        let formData = new FormData(); 
+      if (this.inMsg || files!.length) {
+        const formData = new FormData(); 
         formData.append('clientUserId', String(this.clientUserId));
         formData.append('originUrl', this.originUrl);
+        
         const currDate = new Date();
         const timeFormat = currDate.toLocaleString("en-US", {
-            timeZone: this.timezone,
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false 
+          timeZone: this.timezone,
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false 
         });
 
+        const fileInputHidden = document.querySelector("#roboChat-divFileToUpload")!.classList.contains('roboChat-hidden');
 
-
-        if(document.querySelector("#roboChat-divFileToUpload.roboChat-hidden")){
-          this.scrollBtm(()=>{
+        if (fileInputHidden) {
+          this.scrollBtm(() => {
             document.querySelector('#roboChat-divChatViewMsg')!.innerHTML += `
               <div class="roboChat-user">
                 <div>
@@ -532,56 +532,72 @@ document.addEventListener("DOMContentLoaded", () => {
                     ${this.icons.tick}
                   </span>
                 </div>
-              </div>    
-            `
-          })
-          formData.append('msg',String(this.inMsg));
+              </div>`;
+          });
+
+          formData.append('msg', String(this.inMsg));
           this.inMsg = "";
           (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value = this.inMsg;
-        }
-        else {
+
+          latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
+
+          fetch(this.serverUrl + '/msg-from-client', {
+            method: "POST",
+            body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
+          });
+
+        } else {
           const file = files![0];
           const reader = new FileReader();
-          reader.onload = e=>{
-            this.scrollBtm(()=>{
+
+          reader.onload = e => {
+            const result = e.target!.result as string;
+
+            this.scrollBtm(() => {
               this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
               document.querySelector('#roboChat-divChatViewMsg')!.innerHTML += `
                 <div class="roboChat-user">
                   <div class="roboChat-imgContainer">
-                    <img src="${e.target!.result}"/>
+                    <img src="${result}"/>
                     <div>
                       <span>${timeFormat}</span>
                       ${this.icons.tick}
                       ${this.icons.doubleTick}
                     </div>
                   </div>
-                </div>    
-              `
-            })
+                </div>`;
+            });
 
             document.querySelector("#roboChat-divFileToUpload")!.innerHTML = '';
             document.querySelector("#roboChat-divFileToUpload")!.classList.add('roboChat-hidden');
-            (document.querySelector("#roboChat-divFileToUpload") as HTMLInputElement)!.value = ''
+            (document.querySelector("#roboChat-divFileToUpload") as HTMLInputElement)!.value = '';
             document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
-          }
+
+            formData.append('file', file);
+            formData.append('media_url', result);
+            formData.append('media_content_type', file.type);
+
+            latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
+
+            fetch(this.serverUrl + '/msg-from-client', {
+              method: "POST",
+              body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+              latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
+            });
+          };
+
           reader.readAsDataURL(file);
-          formData.append('file',file);
         }
-
-        latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
-
-
-        fetch(this.serverUrl+'/msg-from-client',{
-          method: "POST",
-          body: formData
-        })
-        .then(res=> res.json())
-        .then(data=>{
-          latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
-          latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
-        })
       }
-    })
+    });
+
 
     document.querySelector("#roboChat-btnEmoji")!.addEventListener("click",ev=> {
       document.querySelector("emoji-picker")!.classList.toggle('roboChat-hidden');
@@ -683,29 +699,22 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
   
   // Add click event for the send button
   document.querySelector('.roboChat-send-file-btn')!.addEventListener('click', () => {
-    // Here you would handle the actual file upload logic
+    // Assume `file` is already defined properly
     console.log('Sending file:', file);
     console.log('Sending file:', String(this.clientUserId));
 
-    let latestMsgElement: HTMLElement;
-    let formData = new FormData(); 
+    let formData = new FormData();
     formData.append('clientUserId', String(this.clientUserId));
     formData.append('originUrl', this.originUrl);
-    const currDate = new Date();
-    const timeFormat = currDate.toLocaleString("en-US", {
-        timeZone: this.timezone,
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false 
-    });
-
-
 
     const reader = new FileReader();
-    reader.onload = e=>{
-      this.scrollBtm(()=>{
+    reader.onload = (e) => {
+      const result = e.target!.result as string;
+      formData.append('file', file);
+      formData.append('media_content_type', file.type);
+      formData.append('media_url', result);
 
-        const result = e.target!.result as string;
+      this.scrollBtm(() => {
         const fileType = this.detectFileType(result);
         let mediaHtml = '';
 
@@ -726,7 +735,7 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
             mediaHtml = `<a href="${result}" target="_blank" download style="color: #15C0E6;">Download File</a>`;
         }
 
-        const timeFormat = new Date().toLocaleTimeString(); // or custom function
+        const timeFormat = new Date().toLocaleTimeString();
         this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
 
         document.querySelector('#roboChat-divChatViewMsg')!.innerHTML += `
@@ -740,33 +749,27 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
               </div>
             </div>
           </div>`;
-      })
 
-      document.querySelector("#roboChat-divFileToUpload")!.innerHTML = '';
-      document.querySelector("#roboChat-divFileToUpload")!.classList.add('roboChat-hidden');
-      (document.querySelector("#roboChat-divFileToUpload") as HTMLInputElement)!.value = ''
-      document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
-    }
-    reader.readAsDataURL(file);
-    formData.append('file',file);
+        document.querySelector("#roboChat-divFileToUpload")!.innerHTML = '';
+        document.querySelector("#roboChat-divFileToUpload")!.classList.add('roboChat-hidden');
+        (document.querySelector("#roboChat-divFileToUpload") as HTMLInputElement)!.value = '';
+        document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
 
-            latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
+        const latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
 
-
-        fetch(this.serverUrl+'/msg-from-client',{
+        fetch(this.serverUrl + '/msg-from-client', {
           method: "POST",
           body: formData
         })
-        .then(res=> res.json())
-        .then(data=>{
-          latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
-          latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
-        })
+          .then(res => res.json())
+          .then(data => {
+            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+          });
+      });
+    };
 
-    // After successful upload, you might want to clear the UI
-    // fileUploadContainer.innerHTML = '';
-    // fileUploadContainer.classList.add('roboChat-hidden');
-    // document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
+    reader.readAsDataURL(file);
   });
 });
 
