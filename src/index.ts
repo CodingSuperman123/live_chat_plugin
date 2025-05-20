@@ -821,7 +821,9 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
     func();
 
     if(isScrollBtm) {
-      document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollHeight;
+      setTimeout(()=>{
+        document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollHeight;
+      },100);
     }
   }
 

@@ -699,7 +699,9 @@ class RoboChat {
         const isScrollBtm = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight - document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop === document.querySelector("#roboChat-divChatViewMsgContainer").clientHeight;
         func();
         if (isScrollBtm) {
-            document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight;
+            setTimeout(() => {
+                document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight;
+            }, 100);
         }
     }
 }
