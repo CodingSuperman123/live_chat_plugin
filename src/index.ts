@@ -291,18 +291,53 @@ class RoboChat {
             minute: "2-digit",
             hour12: false 
         });
+
+        let chatType = 'agent';
+
+        const fileType = data.attachment_type
+
+        console.log("Detected file type:", fileType);
+        let mediaHtml = '';
+        if (fileType.startsWith('image/')) {
+          mediaHtml = `<img src="${fileType}" />`;
+        } else if (fileType.startsWith('application/')) {
+          mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
+        } else if(fileType.startsWith('video/')){
+          mediaHtml = `<span><video src="${fileType}" controls style="max-width: 200px; border-radius: 8px; padding: 10px;"></video></span>`;
+        } else if(fileType.startsWith('audio/')){
+          mediaHtml = `<span><audio src="${fileType}" controls style="max-width: 300px;max-height: 40px;padding: 8px;"></audio></span>`;
+        } else {
+          mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
+        }
+
+
         this.scrollBtm(()=>{
           this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
-          document.querySelector('#roboChat-divChatViewMsg')!.innerHTML += `
-            <div class="roboChat-agent">
-              <div>
-                <label>${data.data.agentMsg}</label>
-                <span>
-                  ${`<span>${timeFormat}</span>`}
-                </span>
+          if(!data.agentMsg && data.attachment_type){
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+              <div class="roboChat-${chatType}">
+                <div class="roboChat-imgContainer">
+                  ${mediaHtml}
+                  <div>
+                    <span>${timeFormat}</span>
+                  </div>
+                </div>
               </div>
-            </div>    
-          `
+            `;
+          }
+          else{
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+              <div class="roboChat-${chatType}">
+                <label>${data.agentMsg}</label>`:`
+                  <div>
+                    <label>${data.agentMsg}</label>
+                    <span>
+                      <span>${timeFormat}</span>
+                    </span>
+                  </div>
+              </div>
+            `;
+          }
         })
       })
 
