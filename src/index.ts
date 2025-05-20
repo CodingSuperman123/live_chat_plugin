@@ -159,7 +159,7 @@ class RoboChat {
         if(chatType === 'system') {
           chatType = 'msg';
         }
-        else if(chatType === 'bot') {
+        else if(chatType === 'bot' || chatType === 'admin') {
           chatType = 'agent'
         }
         else if(chatType === 'client') {
@@ -307,7 +307,7 @@ class RoboChat {
       })
 
 
-      this.socket.on(`end-chat-session-${this.clientUserId}`,(data)=>{
+      this.socket.on(`end-chat-session-${this.clientUserId}`,(data: any)=>{
         const currDate = new Date();
         const timeFormat = currDate.toLocaleString("en-US", {
             timeZone: this.timezone,
