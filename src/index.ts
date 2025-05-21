@@ -106,12 +106,11 @@ class RoboChat {
   }
 
   constructor(strSelector: string) {
-    //this.options = options?? this.defaultOpt;  
     this.element = document.querySelector(strSelector);
     this.element!.classList.add("roboChat");
     this.originUrl = window.location.origin === 'null'?'localhost':window.location.origin;
     this.clientUserId = this.getCookieData().roboChatClientUserId;
-    //this.clientEmail = options.clientEmail;
+
 
     if(this.clientUserId) {
       this.getChatHistory();
@@ -350,7 +349,6 @@ class RoboChat {
 
       if (this.inMsg || files!.length) {
         const formData = new FormData(); 
-        console.log(roboChat.clientUserId);
         formData.append('clientUserId', String(roboChat.clientUserId));
         formData.append('originUrl', roboChat.originUrl);
         
