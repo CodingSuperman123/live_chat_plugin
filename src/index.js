@@ -7,7 +7,8 @@ class RoboChat {
         const type = options.type || 'info';
         const confirmText = options.confirmText || 'OK';
         const autoClose = options.autoClose || 0;
-        // Create alert container
+        // Create alert container - place it inside the chat container
+        const chatContainer = document.getElementById('roboChat-divChatViewMsgContainer');
         const alertOverlay = document.createElement('div');
         alertOverlay.className = 'roboChat-alert-overlay';
         // Create alert content
@@ -54,8 +55,14 @@ class RoboChat {
         </div>
       </div>
     `;
-        // Add to DOM
-        document.body.appendChild(alertOverlay);
+        // Add to DOM - inside the chat container instead of body
+        if (chatContainer) {
+            chatContainer.appendChild(alertOverlay);
+        }
+        else {
+            // Fallback to body if container not found
+            document.body.appendChild(alertOverlay);
+        }
         // Animation
         setTimeout(() => {
             alertOverlay.classList.add('roboChat-alert-show');
@@ -64,7 +71,12 @@ class RoboChat {
         const closeAlert = () => {
             alertOverlay.classList.remove('roboChat-alert-show');
             setTimeout(() => {
-                document.body.removeChild(alertOverlay);
+                if (chatContainer && chatContainer.contains(alertOverlay)) {
+                    chatContainer.removeChild(alertOverlay);
+                }
+                else if (document.body.contains(alertOverlay)) {
+                    document.body.removeChild(alertOverlay);
+                }
             }, 300);
         };
         // Event listeners

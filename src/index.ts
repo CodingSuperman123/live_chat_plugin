@@ -93,11 +93,12 @@ class RoboChat {
     const type = options.type || 'info';
     const confirmText = options.confirmText || 'OK';
     const autoClose = options.autoClose || 0;
-    
-    // Create alert container
+      
+    // Create alert container - place it inside the chat container
+    const chatContainer = document.getElementById('roboChat-divChatViewMsgContainer');
     const alertOverlay = document.createElement('div');
     alertOverlay.className = 'roboChat-alert-overlay';
-    
+      
     // Create alert content
     let iconSvg = '';
     switch (type) {
@@ -121,7 +122,7 @@ class RoboChat {
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
         </svg>`;
     }
-    
+      
     // Create alert HTML
     alertOverlay.innerHTML = `
       <div class="roboChat-alert roboChat-alert-${type}">
@@ -143,40 +144,49 @@ class RoboChat {
         </div>
       </div>
     `;
-    
-    // Add to DOM
-    document.body.appendChild(alertOverlay);
-    
+      
+    // Add to DOM - inside the chat container instead of body
+    if (chatContainer) {
+      chatContainer.appendChild(alertOverlay);
+    } else {
+      // Fallback to body if container not found
+      document.body.appendChild(alertOverlay);
+    }
+      
     // Animation
     setTimeout(() => {
       alertOverlay.classList.add('roboChat-alert-show');
     }, 10);
-    
+      
     // Close function
     const closeAlert = () => {
       alertOverlay.classList.remove('roboChat-alert-show');
       setTimeout(() => {
-        document.body.removeChild(alertOverlay);
+        if (chatContainer && chatContainer.contains(alertOverlay)) {
+          chatContainer.removeChild(alertOverlay);
+        } else if (document.body.contains(alertOverlay)) {
+          document.body.removeChild(alertOverlay);
+        }
       }, 300);
     };
-    
+      
     // Event listeners
     alertOverlay.querySelector('.roboChat-alert-close')?.addEventListener('click', () => {
       closeAlert();
     });
-    
+      
     alertOverlay.querySelector('.roboChat-alert-button-confirm')?.addEventListener('click', () => {
       if (options.onConfirm) options.onConfirm();
       closeAlert();
     });
-    
+      
     if (options.cancelText) {
       alertOverlay.querySelector('.roboChat-alert-button-cancel')?.addEventListener('click', () => {
         if (options.onCancel) options.onCancel();
         closeAlert();
       });
     }
-    
+      
     // Auto close
     if (autoClose > 0) {
       setTimeout(closeAlert, autoClose);
