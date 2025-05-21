@@ -384,8 +384,7 @@ class RoboChat {
                     else {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
               <div class="roboChat-${chatType}">
-                <label>${data.agentMsg}</label>`;
-                        `
+                <label>${data.agentMsg}</label>
                   <div>
                     <label>${data.agentMsg}</label>
                     <span>
