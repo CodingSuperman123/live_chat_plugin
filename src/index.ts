@@ -112,6 +112,7 @@ class RoboChat {
     this.clientUserId = this.getCookieData().roboChatClientUserId;
 
 
+
     if(this.clientUserId) {
       this.getChatHistory();
     }
@@ -289,6 +290,7 @@ class RoboChat {
 
             document.cookie = 'data='+JSON.stringify(cookieData);
 
+            roboChat.clientUserId = data.clientUserId;
             roboChat.getChatHistory();
           })
   
@@ -657,9 +659,6 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
     )
     .then(res => res.json())
     .then(data=>{
-      if(this.clientUserId !== data.clientUserId) {
-        this.clientUserId = data.clientUserId;
-      }
       
       this.chatHistory = data.usrChatHistory;
     

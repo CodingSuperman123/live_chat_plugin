@@ -252,6 +252,7 @@ class RoboChat {
                             let cookieData = roboChat.getCookieData();
                             cookieData['roboChatClientUserId'] = data.clientUserId;
                             document.cookie = 'data=' + JSON.stringify(cookieData);
+                            roboChat.clientUserId = data.clientUserId;
                             roboChat.getChatHistory();
                         });
                         const chatInput = document.querySelector('.roboChat-input-area');
@@ -558,9 +559,6 @@ class RoboChat {
         }))
             .then(res => res.json())
             .then(data => {
-            if (this.clientUserId !== data.clientUserId) {
-                this.clientUserId = data.clientUserId;
-            }
             this.chatHistory = data.usrChatHistory;
             //this.chatHistory!.forEach((val: any,ind: number)=> {
             //  val.forEach((vle: any,idx: number)=> {
