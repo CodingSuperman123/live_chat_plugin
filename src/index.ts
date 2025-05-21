@@ -78,6 +78,112 @@ class RoboChat {
     </div>
     <emoji-picker class="roboChat-hidden"></emoji-picker>
   `
+  // Add this as a method inside your RoboChat class
+  private showAlert(options: {
+    title: string;
+    message?: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+    autoClose?: number;
+  }): void {
+    // Default values
+    const type = options.type || 'info';
+    const confirmText = options.confirmText || 'OK';
+    const autoClose = options.autoClose || 0;
+    
+    // Create alert container
+    const alertOverlay = document.createElement('div');
+    alertOverlay.className = 'roboChat-alert-overlay';
+    
+    // Create alert content
+    let iconSvg = '';
+    switch (type) {
+      case 'success':
+        iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-success">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+        </svg>`;
+        break;
+      case 'error':
+        iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-error">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+        </svg>`;
+        break;
+      case 'warning':
+        iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-warning">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path>
+        </svg>`;
+        break;
+      default:
+        iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-info">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+        </svg>`;
+    }
+    
+    // Create alert HTML
+    alertOverlay.innerHTML = `
+      <div class="roboChat-alert roboChat-alert-${type}">
+        <div class="roboChat-alert-close">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          </svg>
+        </div>
+        <div class="roboChat-alert-icon-box">
+          ${iconSvg}
+        </div>
+        <div class="roboChat-alert-content">
+          <h3 class="roboChat-alert-title">${options.title}</h3>
+          ${options.message ? `<p class="roboChat-alert-message">${options.message}</p>` : ''}
+        </div>
+        <div class="roboChat-alert-actions">
+          ${options.cancelText ? `<button class="roboChat-alert-button roboChat-alert-button-cancel">${options.cancelText}</button>` : ''}
+          <button class="roboChat-alert-button roboChat-alert-button-confirm roboChat-alert-button-${type}">${confirmText}</button>
+        </div>
+      </div>
+    `;
+    
+    // Add to DOM
+    document.body.appendChild(alertOverlay);
+    
+    // Animation
+    setTimeout(() => {
+      alertOverlay.classList.add('roboChat-alert-show');
+    }, 10);
+    
+    // Close function
+    const closeAlert = () => {
+      alertOverlay.classList.remove('roboChat-alert-show');
+      setTimeout(() => {
+        document.body.removeChild(alertOverlay);
+      }, 300);
+    };
+    
+    // Event listeners
+    alertOverlay.querySelector('.roboChat-alert-close')?.addEventListener('click', () => {
+      closeAlert();
+    });
+    
+    alertOverlay.querySelector('.roboChat-alert-button-confirm')?.addEventListener('click', () => {
+      if (options.onConfirm) options.onConfirm();
+      closeAlert();
+    });
+    
+    if (options.cancelText) {
+      alertOverlay.querySelector('.roboChat-alert-button-cancel')?.addEventListener('click', () => {
+        if (options.onCancel) options.onCancel();
+        closeAlert();
+      });
+    }
+    
+    // Auto close
+    if (autoClose > 0) {
+      setTimeout(closeAlert, autoClose);
+    }
+  }
+
+  
   private defaultOpt: object = {
     "chat-pos": 'right',
     "chat-floating-icon": {
@@ -429,25 +535,33 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
       `;
       
-      // // Add event listener for the inner start button - ADD THIS CODE HERE
-      document.getElementById('roboChat-start-inner')?.addEventListener('click', function () {
+      // Store a reference
+      const self = this;
+
+      document.getElementById('roboChat-start-inner')?.addEventListener('click', function() {
         const nameInput = document.getElementById('roboChat-name') as HTMLInputElement;
         const emailInput = document.getElementById('roboChat-email') as HTMLInputElement;
         const name = nameInput?.value.trim() || '';
         const email = emailInput?.value.trim() || '';
-
+        
         if (!name || !email) {
-          alert('Please enter both name and email to start the chat');
+          // Use the stored reference to call showAlert
+          self.showAlert({
+            title: 'Input Required',
+            message: 'Please enter both name and email to start the chat',
+            type: 'warning',
+            autoClose: 3000
+          });
           return;
         }
-
+        
         const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
+        
         const formContainer = document.querySelector('#chat-form');
         if (formContainer) {
           formContainer.remove();
         }
-
+        
         messageView.innerHTML += `
           <div class="roboChat-agent">
             <div class="roboChat-message">
@@ -460,10 +574,10 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
         `;
-
+        
         const userData = { name, email };
         console.log('User data:', userData);
-
+        
         const chatInput = document.querySelector('.roboChat-input-area');
         if (chatInput) {
           chatInput.classList.remove('roboChat-hidden');
