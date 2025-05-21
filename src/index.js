@@ -537,7 +537,7 @@ class RoboChat {
     }
     getCookieData() {
         let cookies = document.cookie.split("; ").filter(val => val.startsWith("data="));
-        const data = cookies[0].replace("data=", "");
+        const data = cookies.length ? cookies[0].replace("data=", "") : '{}';
         return cookies.length ? JSON.parse(data ? data : '{}') : {};
     }
     getChatHistory() {
