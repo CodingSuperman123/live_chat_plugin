@@ -329,6 +329,20 @@ class RoboChat {
 
     })
 
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.querySelector('#roboChat-inMsg') as HTMLInputElement;
+      const sendBtn = document.querySelector('#roboChat-btnSendMsg') as HTMLElement;
+
+      if (input && sendBtn) {
+        input.addEventListener('keydown', (ev: KeyboardEvent) => {
+          if (ev.key === 'Enter' && !ev.shiftKey) {
+            ev.preventDefault();
+            sendBtn.dispatchEvent(new Event('click'));
+          }
+        });
+      }
+    });
+    
     document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev => {
       let latestMsgElement: HTMLElement;
       this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;

@@ -284,6 +284,18 @@ class RoboChat {
             document.querySelector('#roboChat-divChatLoading').classList.add('roboChat-hidden');
             document.querySelector('#roboChat-divChatViewMsg').classList.remove('roboChat-hidden');
         });
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.querySelector('#roboChat-inMsg');
+            const sendBtn = document.querySelector('#roboChat-btnSendMsg');
+            if (input && sendBtn) {
+                input.addEventListener('keydown', (ev) => {
+                    if (ev.key === 'Enter' && !ev.shiftKey) {
+                        ev.preventDefault();
+                        sendBtn.dispatchEvent(new Event('click'));
+                    }
+                });
+            }
+        });
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', ev => {
             let latestMsgElement;
             this.inMsg = document.querySelector('#roboChat-inMsg').value;
