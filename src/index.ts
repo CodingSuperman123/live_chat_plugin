@@ -392,7 +392,7 @@ class RoboChat {
           })
           .then(res => res.json())
           .then(data => {
-            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
+            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
           });
 
         } else {
@@ -434,7 +434,7 @@ class RoboChat {
             })
             .then(res => res.json())
             .then(data => {
-              latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
+              //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
             });
 
           };
@@ -609,8 +609,8 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
         })
           .then(res => res.json())
           .then(data => {
-            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
           });
       });
     };
@@ -766,12 +766,12 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
     
         if(chatType === 'user'){
           const lastUserChat = document.querySelector('.roboChat-user:last-of-type')!;
-          if(val.status === 'delivered'){
-            lastUserChat.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-          }
-          else if(val.status === 'read'){
-            lastUserChat.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
-          }
+          //if(val.status === 'delivered'){
+          //  lastUserChat.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+          //}
+          //else if(val.status === 'read'){
+          //  lastUserChat.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
+          //}
         }
     
       })
@@ -924,10 +924,10 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
       });
     
       this.socket.on(`msg-read-${this.clientUserId}`,(data: any)=>{
-        document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
-          item.querySelector('svg.tickIcon')!.classList.add('roboChat-hidden');
-          item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
-        });
+        //document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
+        //  item.querySelector('svg.tickIcon')!.classList.add('roboChat-hidden');
+        //  item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
+        //});
       })
     
     })
