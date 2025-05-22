@@ -557,8 +557,21 @@ class RoboChat {
             "role": "client",
             "originUrl": (_a = this.originUrl) !== null && _a !== void 0 ? _a : ""
         }))
-            .then(res => res.json())
-            .then(data => {
+            .then(res => {
+            if (!res.ok) {
+                res.json().then((err) => {
+                    if (err.msg && err.msg === 'user not exist') {
+                        const cookieData = this.getCookieData();
+                        cookieData['roboChatClientUserId'] = null;
+                        document.cookie = 'data=' + JSON.stringify(cookieData);
+                    }
+                });
+            }
+            else {
+                return res.json();
+            }
+        })
+            .then((data) => {
             this.chatHistory = data.usrChatHistory;
             //this.chatHistory!.forEach((val: any,ind: number)=> {
             //  val.forEach((vle: any,idx: number)=> {

@@ -286,6 +286,7 @@ class RoboChat {
           .then(data=>{
             let cookieData: any = roboChat.getCookieData()
 
+
             cookieData['roboChatClientUserId'] = data.clientUserId;
 
             document.cookie = 'data='+JSON.stringify(cookieData);
@@ -657,10 +658,27 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
         "originUrl": this.originUrl??""
       })    
     )
-    .then(res => res.json())
-    .then(data=>{
+    .then(res => {
+      if(!res.ok) {
+        res.json().then((err: any)=>{
+          if(err.msg && err.msg === 'user not exist') {
+            const cookieData: any = this.getCookieData()
+
+            cookieData['roboChatClientUserId'] = null
+            document.cookie = 'data='+JSON.stringify(cookieData)
+          }
+        })
+
+      }
+      else {
+        return res.json();
+
+      }
+    })
+    .then((data: any)=>{
       
       this.chatHistory = data.usrChatHistory;
+
     
     
       //this.chatHistory!.forEach((val: any,ind: number)=> {
