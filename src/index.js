@@ -594,7 +594,7 @@ class RoboChat {
                 if (chatType === 'system') {
                     chatType = 'msg';
                 }
-                else if (chatType === 'bot' || chatType === 'admin') {
+                else if (chatType === 'bot' || chatType === 'admin' || chatType === 'staff') {
                     chatType = 'agent';
                 }
                 else if (chatType === 'client') {

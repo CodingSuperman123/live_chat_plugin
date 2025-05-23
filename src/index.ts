@@ -710,7 +710,7 @@ document.querySelector('#roboChat-inFile')!.addEventListener('change', (ev: any)
         if(chatType === 'system') {
           chatType = 'msg';
         }
-        else if(chatType === 'bot' || chatType === 'admin') {
+        else if(chatType === 'bot' || chatType === 'admin' || chatType === 'staff') {
           chatType = 'agent'
         }
         else if(chatType === 'client') {
