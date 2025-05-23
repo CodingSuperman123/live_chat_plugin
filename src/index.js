@@ -4,8 +4,7 @@ class RoboChat {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        //private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
-        this.serverUrl = 'http://localhost:8000/api';
+        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('http://ec2-43-216-15-26.ap-southeast-5.compute.amazonaws.com');
