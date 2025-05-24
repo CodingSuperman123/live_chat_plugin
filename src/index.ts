@@ -15,7 +15,7 @@ class RoboChat {
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
-  private socket = io('http://ec2-43-216-15-26.ap-southeast-5.compute.amazonaws.com');
+  private socket = io('https://socket.roomx.xyz');
   private element: HTMLElement | null;
   private floatingChatIcon: string = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
