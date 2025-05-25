@@ -363,7 +363,12 @@ class RoboChat {
             const email = emailInput?.value.trim() || '';
     
             if (!name || !email) {
-              alert('Please enter both name and email to start the chat');
+              self.showAlert({
+                title: 'Input Required',
+                message: 'Please enter both name and email to start the chat',
+                type: 'warning',
+                autoClose: 3000
+              });
               return;
             }
     

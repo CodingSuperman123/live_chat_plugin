@@ -317,7 +317,12 @@ class RoboChat {
                         const name = (nameInput === null || nameInput === void 0 ? void 0 : nameInput.value.trim()) || '';
                         const email = (emailInput === null || emailInput === void 0 ? void 0 : emailInput.value.trim()) || '';
                         if (!name || !email) {
-                            alert('Please enter both name and email to start the chat');
+                            self.showAlert({
+                                title: 'Input Required',
+                                message: 'Please enter both name and email to start the chat',
+                                type: 'warning',
+                                autoClose: 3000
+                            });
                             return;
                         }
                         const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
