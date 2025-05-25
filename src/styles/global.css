@@ -427,9 +427,9 @@ button:active {
 
       & > span {
         display: flex;
-        align-items: center;
+        align-items: end;
         font-size: 0.75rem;
-        margin-bottom: -0.5rem;
+        /*margin-bottom: -0.5rem;*/
         opacity: 0.85;
         gap: 6px;
 

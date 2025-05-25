@@ -7,7 +7,7 @@ class RoboChat {
         this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
-        this.socket = io('http://ec2-43-216-15-26.ap-southeast-5.compute.amazonaws.com');
+        this.socket = io('https://socket.roomx.xyz');
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
       <div>
@@ -340,7 +340,7 @@ class RoboChat {
                     })
                         .then(res => res.json())
                         .then(data => {
-                        latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
+                        //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
                     });
                 }
                 else {
@@ -381,7 +381,7 @@ class RoboChat {
                         })
                             .then(res => res.json())
                             .then(data => {
-                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
+                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
                         });
                     };
                     reader.readAsDataURL(file);
@@ -534,8 +534,8 @@ class RoboChat {
                         })
                             .then(res => res.json())
                             .then(data => {
-                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
-                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
+                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
                         });
                     });
                 };
@@ -571,8 +571,21 @@ class RoboChat {
             "role": "client",
             "originUrl": (_a = this.originUrl) !== null && _a !== void 0 ? _a : ""
         }))
-            .then(res => res.json())
-            .then(data => {
+            .then(res => {
+            if (!res.ok) {
+                res.json().then((err) => {
+                    if (err.msg && err.msg === 'user not exist') {
+                        const cookieData = this.getCookieData();
+                        cookieData['roboChatClientUserId'] = null;
+                        document.cookie = 'data=' + JSON.stringify(cookieData);
+                    }
+                });
+            }
+            else {
+                return res.json();
+            }
+        })
+            .then((data) => {
             this.chatHistory = data.usrChatHistory;
             //this.chatHistory!.forEach((val: any,ind: number)=> {
             //  val.forEach((vle: any,idx: number)=> {
@@ -594,7 +607,7 @@ class RoboChat {
                 if (chatType === 'system') {
                     chatType = 'msg';
                 }
-                else if (chatType === 'bot' || chatType === 'admin') {
+                else if (chatType === 'bot' || chatType === 'admin' || chatType === 'staff') {
                     chatType = 'agent';
                 }
                 else if (chatType === 'client') {
@@ -650,12 +663,12 @@ class RoboChat {
                 }
                 if (chatType === 'user') {
                     const lastUserChat = document.querySelector('.roboChat-user:last-of-type');
-                    if (val.status === 'delivered') {
-                        lastUserChat.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
-                    }
-                    else if (val.status === 'read') {
-                        lastUserChat.querySelector('svg.doubleTickIcon').classList.remove('roboChat-hidden');
-                    }
+                    //if(val.status === 'delivered'){
+                    //  lastUserChat.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+                    //}
+                    //else if(val.status === 'read'){
+                    //  lastUserChat.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
+                    //}
                 }
             });
             this.socket.on(`on-hold-chat-${this.clientUserId}`, (data) => {
@@ -796,13 +809,14 @@ class RoboChat {
             </div>    
           `;
                     document.querySelector("#roboChat-divChatViewMsg").innerHTML += `<div class="roboChat-msg"><label>chat session ended</label></div>`;
+                    clearInterval(this.onHoldInterval);
                 });
             });
             this.socket.on(`msg-read-${this.clientUserId}`, (data) => {
-                document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`).forEach(item => {
-                    item.querySelector('svg.tickIcon').classList.add('roboChat-hidden');
-                    item.querySelector('svg.doubleTickIcon').classList.remove('roboChat-hidden');
-                });
+                //document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
+                //  item.querySelector('svg.tickIcon')!.classList.add('roboChat-hidden');
+                //  item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
+                //});
             });
         });
     }

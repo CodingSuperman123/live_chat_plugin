@@ -15,7 +15,7 @@ class RoboChat {
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
-  private socket = io('http://ec2-43-216-15-26.ap-southeast-5.compute.amazonaws.com');
+  private socket = io('https://socket.roomx.xyz');
   private element: HTMLElement | null;
   private floatingChatIcon: string = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
@@ -286,7 +286,8 @@ class RoboChat {
             .then(data=>{
               let cookieData: any = roboChat.getCookieData()
 
-              cookieData['roboChatClientUserId'] = data.clientUserId;
+
+            cookieData['roboChatClientUserId'] = data.clientUserId;
 
               document.cookie = 'data='+JSON.stringify(cookieData);
 
@@ -397,7 +398,7 @@ class RoboChat {
           })
           .then(res => res.json())
           .then(data => {
-            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
+            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
           });
 
         } else {
@@ -446,7 +447,7 @@ class RoboChat {
             })
             .then(res => res.json())
             .then(data => {
-              latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
+              //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
             });
 
           };
@@ -542,6 +543,10 @@ class RoboChat {
         fileUploadContainer.classList.add('roboChat-hidden');
         document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
         ev.target.value = '';
+
+        const latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
+
+
       });
       
       // Also keep your original close button functionality
@@ -674,10 +679,27 @@ class RoboChat {
         "originUrl": this.originUrl??""
       })    
     )
-    .then(res => res.json())
-    .then(data=>{
+    .then(res => {
+      if(!res.ok) {
+        res.json().then((err: any)=>{
+          if(err.msg && err.msg === 'user not exist') {
+            const cookieData: any = this.getCookieData()
+
+            cookieData['roboChatClientUserId'] = null
+            document.cookie = 'data='+JSON.stringify(cookieData)
+          }
+        })
+
+      }
+      else {
+        return res.json();
+
+      }
+    })
+    .then((data: any)=>{
       
       this.chatHistory = data.usrChatHistory;
+
     
     
       //this.chatHistory!.forEach((val: any,ind: number)=> {
@@ -709,7 +731,7 @@ class RoboChat {
         if(chatType === 'system') {
           chatType = 'msg';
         }
-        else if(chatType === 'bot' || chatType === 'admin') {
+        else if(chatType === 'bot' || chatType === 'admin' || chatType === 'staff') {
           chatType = 'agent'
         }
         else if(chatType === 'client') {
@@ -765,12 +787,12 @@ class RoboChat {
     
         if(chatType === 'user'){
           const lastUserChat = document.querySelector('.roboChat-user:last-of-type')!;
-          if(val.status === 'delivered'){
-            lastUserChat.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-          }
-          else if(val.status === 'read'){
-            lastUserChat.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
-          }
+          //if(val.status === 'delivered'){
+          //  lastUserChat.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+          //}
+          //else if(val.status === 'read'){
+          //  lastUserChat.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
+          //}
         }
     
       })
@@ -931,14 +953,16 @@ class RoboChat {
             </div>    
           `
           document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>chat session ended</label></div>`;
+
+          clearInterval(this.onHoldInterval);
         })
       });
     
       this.socket.on(`msg-read-${this.clientUserId}`,(data: any)=>{
-        document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
-          item.querySelector('svg.tickIcon')!.classList.add('roboChat-hidden');
-          item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
-        });
+        //document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
+        //  item.querySelector('svg.tickIcon')!.classList.add('roboChat-hidden');
+        //  item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
+        //});
       })
     
     })
