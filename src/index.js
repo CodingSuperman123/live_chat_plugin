@@ -1,5 +1,105 @@
 "use strict";
 class RoboChat {
+    // Add this as a method inside your RoboChat class
+    showAlert(options) {
+        var _a, _b, _c;
+        // Default values
+        const type = options.type || 'info';
+        const confirmText = options.confirmText || 'OK';
+        const autoClose = options.autoClose || 0;
+        // Create alert container - place it inside the chat container
+        const chatContainer = document.getElementById('roboChat-divChatViewMsgContainer');
+        const alertOverlay = document.createElement('div');
+        alertOverlay.className = 'roboChat-alert-overlay';
+        // Create alert content
+        let iconSvg = '';
+        switch (type) {
+            case 'success':
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-success">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+        </svg>`;
+                break;
+            case 'error':
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-error">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+        </svg>`;
+                break;
+            case 'warning':
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-warning">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path>
+        </svg>`;
+                break;
+            default:
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-info">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+        </svg>`;
+        }
+        // Create alert HTML
+        alertOverlay.innerHTML = `
+      <div class="roboChat-alert roboChat-alert-${type}">
+        <div class="roboChat-alert-close">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          </svg>
+        </div>
+        <div class="roboChat-alert-icon-box">
+          ${iconSvg}
+        </div>
+        <div class="roboChat-alert-content">
+          <h3 class="roboChat-alert-title">${options.title}</h3>
+          ${options.message ? `<p class="roboChat-alert-message">${options.message}</p>` : ''}
+        </div>
+        <div class="roboChat-alert-actions">
+          ${options.cancelText ? `<button class="roboChat-alert-button roboChat-alert-button-cancel">${options.cancelText}</button>` : ''}
+          <button class="roboChat-alert-button roboChat-alert-button-confirm roboChat-alert-button-${type}">${confirmText}</button>
+        </div>
+      </div>
+    `;
+        // Add to DOM - inside the chat container instead of body
+        if (chatContainer) {
+            chatContainer.appendChild(alertOverlay);
+        }
+        else {
+            // Fallback to body if container not found
+            document.body.appendChild(alertOverlay);
+        }
+        // Animation
+        setTimeout(() => {
+            alertOverlay.classList.add('roboChat-alert-show');
+        }, 10);
+        // Close function
+        const closeAlert = () => {
+            alertOverlay.classList.remove('roboChat-alert-show');
+            setTimeout(() => {
+                if (chatContainer && chatContainer.contains(alertOverlay)) {
+                    chatContainer.removeChild(alertOverlay);
+                }
+                else if (document.body.contains(alertOverlay)) {
+                    document.body.removeChild(alertOverlay);
+                }
+            }, 300);
+        };
+        // Event listeners
+        (_a = alertOverlay.querySelector('.roboChat-alert-close')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+            closeAlert();
+        });
+        (_b = alertOverlay.querySelector('.roboChat-alert-button-confirm')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
+            if (options.onConfirm)
+                options.onConfirm();
+            closeAlert();
+        });
+        if (options.cancelText) {
+            (_c = alertOverlay.querySelector('.roboChat-alert-button-cancel')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => {
+                if (options.onCancel)
+                    options.onCancel();
+                closeAlert();
+            });
+        }
+        // Auto close
+        if (autoClose > 0) {
+            setTimeout(closeAlert, autoClose);
+        }
+    }
     constructor(strSelector) {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
@@ -465,6 +565,7 @@ class RoboChat {
                 fileUploadContainer.classList.add('roboChat-hidden');
                 document.querySelector("#roboChat-inMsg").classList.remove('roboChat-hidden');
                 ev.target.value = '';
+                const latestMsgElement = document.querySelector('.roboChat-user:last-of-type');
             });
             // Also keep your original close button functionality
             fileUploadContainer.querySelector('#roboChat-imgToUploadContainer > img').addEventListener('click', () => {
@@ -534,8 +635,8 @@ class RoboChat {
                         })
                             .then(res => res.json())
                             .then(data => {
-                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
+                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
                         });
                     });
                 };
