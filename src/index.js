@@ -310,6 +310,7 @@ class RoboChat {
                 </div>
             `;
                     }
+                    const self = this;
                     // // Add event listener for the inner start button - ADD THIS CODE HERE
                     (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
                         const nameInput = document.getElementById('roboChat-name');

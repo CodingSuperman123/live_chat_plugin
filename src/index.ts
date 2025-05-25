@@ -355,6 +355,7 @@ class RoboChat {
           
           }
           
+          const self = this;
           // // Add event listener for the inner start button - ADD THIS CODE HERE
           document.getElementById('roboChat-start-inner')?.addEventListener('click', function () {
             const nameInput = document.getElementById('roboChat-name') as HTMLInputElement;
