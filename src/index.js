@@ -104,7 +104,8 @@ class RoboChat {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+        // private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+        this.serverUrl = 'http://localhost:8000/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('https://socket.roomx.xyz');
@@ -894,6 +895,16 @@ class RoboChat {
                   `;
                     }
                 });
+            });
+            this.socket.on(`msg-read-status-${this.clientUserId}`, (data) => {
+                console.log(data.data.read_status);
+                if (data.data.read_status === 'read') {
+                    // Select the last .roboChat-user small element
+                    const lastStatus = document.querySelector('#roboChat-divChatViewMsg .roboChat-user small:last-of-type');
+                    if (lastStatus) {
+                        lastStatus.textContent = 'Read';
+                    }
+                }
             });
             this.socket.on(`end-chat-session-${this.clientUserId}`, (data) => {
                 const currDate = new Date();

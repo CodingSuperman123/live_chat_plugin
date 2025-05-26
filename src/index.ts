@@ -5,8 +5,8 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
-  //private serverUrl = 'http://localhost:8000/api';
+  // private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+  private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -513,6 +513,7 @@ class RoboChat {
           (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value = this.inMsg;
 
           latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
+          
 
           fetch(this.serverUrl + '/msg-from-client', {
             method: "POST",
@@ -1003,6 +1004,7 @@ class RoboChat {
 
           // Simulate delay or wrap logic inside scrollBtm
           this.scrollBtm(() => {
+            
               this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
 
               // Remove the typing animation
@@ -1051,6 +1053,18 @@ class RoboChat {
                   `;
               }
           });
+      });
+
+      this.socket.on(`msg-read-status-${this.clientUserId}`, (data: any) => {
+        console.log(data.data.read_status);
+        
+        if (data.data.read_status === 'read') {
+          // Select the last .roboChat-user small element
+          const lastStatus = document.querySelector('#roboChat-divChatViewMsg .roboChat-user small:last-of-type');
+          if (lastStatus) {
+            lastStatus.textContent = 'Read';
+          }
+        }
       });
     
     
