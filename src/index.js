@@ -1,10 +1,112 @@
 "use strict";
 class RoboChat {
+    // Add this as a method inside your RoboChat class
+    showAlert(options) {
+        var _a, _b, _c;
+        // Default values
+        const type = options.type || 'info';
+        const confirmText = options.confirmText || 'OK';
+        const autoClose = options.autoClose || 0;
+        // Create alert container - place it inside the chat container
+        const chatContainer = document.getElementById('roboChat-divChatViewMsgContainer');
+        const alertOverlay = document.createElement('div');
+        alertOverlay.className = 'roboChat-alert-overlay';
+        // Create alert content
+        let iconSvg = '';
+        switch (type) {
+            case 'success':
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-success">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+        </svg>`;
+                break;
+            case 'error':
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-error">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+        </svg>`;
+                break;
+            case 'warning':
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-warning">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path>
+        </svg>`;
+                break;
+            default:
+                iconSvg = `<svg viewBox="0 0 24 24" class="roboChat-alert-icon roboChat-alert-icon-info">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+        </svg>`;
+        }
+        // Create alert HTML
+        alertOverlay.innerHTML = `
+      <div class="roboChat-alert roboChat-alert-${type}">
+        <div class="roboChat-alert-close">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          </svg>
+        </div>
+        <div class="roboChat-alert-icon-box">
+          ${iconSvg}
+        </div>
+        <div class="roboChat-alert-content">
+          <h3 class="roboChat-alert-title">${options.title}</h3>
+          ${options.message ? `<p class="roboChat-alert-message">${options.message}</p>` : ''}
+        </div>
+        <div class="roboChat-alert-actions">
+          ${options.cancelText ? `<button class="roboChat-alert-button roboChat-alert-button-cancel">${options.cancelText}</button>` : ''}
+          <button class="roboChat-alert-button roboChat-alert-button-confirm roboChat-alert-button-${type}">${confirmText}</button>
+        </div>
+      </div>
+    `;
+        // Add to DOM - inside the chat container instead of body
+        if (chatContainer) {
+            chatContainer.appendChild(alertOverlay);
+        }
+        else {
+            // Fallback to body if container not found
+            document.body.appendChild(alertOverlay);
+        }
+        // Animation
+        setTimeout(() => {
+            alertOverlay.classList.add('roboChat-alert-show');
+        }, 10);
+        // Close function
+        const closeAlert = () => {
+            alertOverlay.classList.remove('roboChat-alert-show');
+            setTimeout(() => {
+                if (chatContainer && chatContainer.contains(alertOverlay)) {
+                    chatContainer.removeChild(alertOverlay);
+                }
+                else if (document.body.contains(alertOverlay)) {
+                    document.body.removeChild(alertOverlay);
+                }
+            }, 300);
+        };
+        // Event listeners
+        (_a = alertOverlay.querySelector('.roboChat-alert-close')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+            closeAlert();
+        });
+        (_b = alertOverlay.querySelector('.roboChat-alert-button-confirm')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
+            if (options.onConfirm)
+                options.onConfirm();
+            closeAlert();
+        });
+        if (options.cancelText) {
+            (_c = alertOverlay.querySelector('.roboChat-alert-button-cancel')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => {
+                if (options.onCancel)
+                    options.onCancel();
+                closeAlert();
+            });
+        }
+        // Auto close
+        if (autoClose > 0) {
+            setTimeout(closeAlert, autoClose);
+        }
+    }
     constructor(strSelector) {
+        this.chatStarted = false;
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+        // private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+        this.serverUrl = 'http://localhost:8000/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('https://socket.roomx.xyz');
@@ -168,48 +270,50 @@ class RoboChat {
                     // Add agent message
                     if (!roboChat.getCookieData().roboChatClientUserId) {
                         messageView.innerHTML += `
-              <div class="roboChat-agent" id="chat-form">
-                <div class="roboChat-container">
-                  <div class="roboChat-form" aria-label="Chat start form">
-                    <h2 class="chatform_header">Let's chat! Fill in a few details to get started.</h2>
-                    <div class="roboChat-input-group">
-                      <label for="roboChat-name">Name:</label>
-                      <input 
-                        type="text" 
-                        id="roboChat-name" 
-                        name="roboChat-name"
-                        class="roboChat-input" 
-                        placeholder="Enter your name" 
-                        required 
-                        aria-required="true"
-                      >
+                <div class="roboChat-agent" id="chat-form">
+                  <div class="roboChat-container">
+                    <div class="roboChat-form" aria-label="Chat start form">
+                      <h2 class="chatform_header">Let's chat! Fill in a few details to get started.</h2>
+                      <div class="roboChat-input-group">
+                        <label for="roboChat-name">Name:</label>
+                        <input 
+                          type="text" 
+                          id="roboChat-name" 
+                          name="roboChat-name"
+                          class="roboChat-input" 
+                          placeholder="Enter your name" 
+                          required 
+                          aria-required="true"
+                        >
+                      </div>
+    
+                      <div class="roboChat-input-group">
+                        <label for="roboChat-email">E-mail:</label>
+                        <input 
+                          type="email" 
+                          id="roboChat-email" 
+                          name="roboChat-email"
+                          class="roboChat-input" 
+                          placeholder="Enter your email" 
+                          required 
+                          aria-required="true"
+                        >
+                      </div>
+    
+                      <div class="button-wrapper">
+                      <button type="button" id="roboChat-start-inner" class="roboChat-button">Start the Chat</button>
+                      </div>
                     </div>
-  
-                    <div class="roboChat-input-group">
-                      <label for="roboChat-email">E-mail:</label>
-                      <input 
-                        type="email" 
-                        id="roboChat-email" 
-                        name="roboChat-email"
-                        class="roboChat-input" 
-                        placeholder="Enter your email" 
-                        required 
-                        aria-required="true"
-                      >
+    
+                    <div class="roboChat-timestamp">
+                      <span id="roboChat-time">${timeFormat}</span>
                     </div>
-  
-                    <div class="button-wrapper">
-                    <button type="button" id="roboChat-start-inner" class="roboChat-button">Start the Chat</button>
-                    </div>
-                  </div>
-  
-                  <div class="roboChat-timestamp">
-                    <span id="roboChat-time">${timeFormat}</span>
                   </div>
                 </div>
-              </div>
-          `;
+            `;
                     }
+                    const self = this;
+                    let chatStarted = false;
                     // // Add event listener for the inner start button - ADD THIS CODE HERE
                     (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
                         const nameInput = document.getElementById('roboChat-name');
@@ -217,7 +321,12 @@ class RoboChat {
                         const name = (nameInput === null || nameInput === void 0 ? void 0 : nameInput.value.trim()) || '';
                         const email = (emailInput === null || emailInput === void 0 ? void 0 : emailInput.value.trim()) || '';
                         if (!name || !email) {
-                            alert('Please enter both name and email to start the chat');
+                            self.showAlert({
+                                title: 'Input Required',
+                                message: 'Please enter both name and email to start the chat',
+                                type: 'warning',
+                                autoClose: 3000
+                            });
                             return;
                         }
                         const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -254,6 +363,7 @@ class RoboChat {
                             document.cookie = 'data=' + JSON.stringify(cookieData);
                             roboChat.clientUserId = data.clientUserId;
                             roboChat.getChatHistory();
+                            chatStarted = true; // ✅ SET THIS FLAG HERE
                         });
                         const chatInput = document.querySelector('.roboChat-input-area');
                         if (chatInput) {
@@ -296,6 +406,15 @@ class RoboChat {
             }
         });
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', ev => {
+            if (!this.chatStarted) {
+                this.showAlert({
+                    title: 'Chat Not Started',
+                    message: 'Please start the chat first by providing your name and email.',
+                    type: 'warning',
+                    autoClose: 3000
+                });
+                return;
+            }
             let latestMsgElement;
             this.inMsg = document.querySelector('#roboChat-inMsg').value;
             const files = document.querySelector('#roboChat-inFile').files;
@@ -313,16 +432,21 @@ class RoboChat {
                 const fileInputHidden = document.querySelector("#roboChat-divFileToUpload").classList.contains('roboChat-hidden');
                 if (fileInputHidden) {
                     this.scrollBtm(() => {
+                        // Remove previous "Delivered" label if exists
+                        const previousDelivered = document.querySelectorAll('#roboChat-divChatViewMsg .roboChat-user small');
+                        previousDelivered.forEach(el => el.remove());
+                        // Add the new message
                         document.querySelector('#roboChat-divChatViewMsg').innerHTML += `
               <div class="roboChat-user">
-                <div>
+                <div class="roboChat-bubble">
                   <label>${this.inMsg}</label>
-                  <span>
+                  <span class="roboChat-meta">
                     <span>${timeFormat}</span>
                     ${this.icons.doubleTick}
                     ${this.icons.tick}
                   </span>
                 </div>
+                <small>Delivered</small>
               </div>`;
                     });
                     formData.append('msg', String(this.inMsg));
@@ -345,6 +469,10 @@ class RoboChat {
                         const result = e.target.result;
                         this.scrollBtm(() => {
                             this.inMsg = document.querySelector('#roboChat-inMsg').value;
+                            // Remove all previous "Delivered" tags
+                            const previousDelivered = document.querySelectorAll('#roboChat-divChatViewMsg .roboChat-user small');
+                            previousDelivered.forEach(el => el.remove());
+                            // Add the new image message with "Delivered"
                             document.querySelector('#roboChat-divChatViewMsg').innerHTML += `
                 <div class="roboChat-user">
                   <div class="roboChat-imgContainer">
@@ -354,6 +482,7 @@ class RoboChat {
                       ${this.icons.tick}
                       ${this.icons.doubleTick}
                     </div>
+                    <small>Delivered</small>
                   </div>
                 </div>`;
                         });
@@ -400,53 +529,53 @@ class RoboChat {
             let fileIcon = '';
             if (isPDF) {
                 fileIcon = `
-      <svg class="roboChat-fileUpload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v1.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V8c0-.55.45-1 1-1H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2c-.28 0-.5-.22-.5-.5v-5c0-.28.22-.5.5-.5h2c.83 0 1.5.67 1.5 1.5v3zm4-3.75c0 .41-.34.75-.75.75H19v1h.75c.41 0 .75.34.75.75s-.34.75-.75.75H19v1.5c0 .41-.34.75-.75.75s-.75-.34-.75-.75V8c0-.55.45-1 1-1h1.25c.41 0 .75.34.75.75zM9 9.5h1v-1H9v1zM3 6c-.55 0-1 .45-1 1v13c0 1.1.9 2 2 2h13c.55 0 1-.45 1-1s-.45-1-1-1H5c-.55 0-1-.45-1-1V7c0-.55-.45-1-1-1zm11 5.5h1v-3h-1v3z"/>
-      </svg>
-    `;
+          <svg class="roboChat-fileUpload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v1.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V8c0-.55.45-1 1-1H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2c-.28 0-.5-.22-.5-.5v-5c0-.28.22-.5.5-.5h2c.83 0 1.5.67 1.5 1.5v3zm4-3.75c0 .41-.34.75-.75.75H19v1h.75c.41 0 .75.34.75.75s-.34.75-.75.75H19v1.5c0 .41-.34.75-.75.75s-.75-.34-.75-.75V8c0-.55.45-1 1-1h1.25c.41 0 .75.34.75.75zM9 9.5h1v-1H9v1zM3 6c-.55 0-1 .45-1 1v13c0 1.1.9 2 2 2h13c.55 0 1-.45 1-1s-.45-1-1-1H5c-.55 0-1-.45-1-1V7c0-.55-.45-1-1-1zm11 5.5h1v-3h-1v3z"/>
+          </svg>
+        `;
             }
             else if (isImage) {
                 fileIcon = `
-      <svg class="roboChat-fileUpload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-      </svg>
-    `;
+          <svg class="roboChat-fileUpload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+          </svg>
+        `;
             }
             else {
                 fileIcon = `
-      <svg class="roboChat-fileUpload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-      </svg>
-    `;
+          <svg class="roboChat-fileUpload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+        `;
             }
             // Create the complete UI with status indicator and send button
             fileUploadContainer.innerHTML = `
-    <div class="roboChat-fileUpload-wrapper">
-      <div class="roboChat-fileUpload-status">
-        <div class="roboChat-fileUpload-status-text">
-          <div class="roboChat-fileUpload-status-icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-            </svg>
+        <div class="roboChat-fileUpload-wrapper">
+          <div class="roboChat-fileUpload-status">
+            <div class="roboChat-fileUpload-status-text">
+              <div class="roboChat-fileUpload-status-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                </svg>
+              </div>
+              <span>1 of 1 uploaded</span>
+            </div>
+            <div class="roboChat-fileUpload-delete">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill: #ff3b30;">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </div>
           </div>
-          <span>1 of 1 uploaded</span>
+          
+          <div id="roboChat-imgToUploadContainer">
+            ${fileIcon}
+            <label>${file.name}</label>
+            <img src="src/assets/images/close.svg"/>
+          </div>
+          
+          <button class="roboChat-send-file-btn">Send files</button>
         </div>
-        <div class="roboChat-fileUpload-delete">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill: #ff3b30;">
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-          </svg>
-        </div>
-      </div>
-      
-      <div id="roboChat-imgToUploadContainer">
-        ${fileIcon}
-        <label>${file.name}</label>
-        <img src="src/assets/images/close.svg"/>
-      </div>
-      
-      <button class="roboChat-send-file-btn">Send files</button>
-    </div>
-  `;
+      `;
             document.querySelector("#roboChat-inMsg").classList.add('roboChat-hidden');
             fileUploadContainer.classList.remove('roboChat-hidden');
             // Add click event for the delete button
@@ -455,6 +584,7 @@ class RoboChat {
                 fileUploadContainer.classList.add('roboChat-hidden');
                 document.querySelector("#roboChat-inMsg").classList.remove('roboChat-hidden');
                 ev.target.value = '';
+                const latestMsgElement = document.querySelector('.roboChat-user:last-of-type');
             });
             // Also keep your original close button functionality
             fileUploadContainer.querySelector('#roboChat-imgToUploadContainer > img').addEventListener('click', () => {
@@ -496,19 +626,23 @@ class RoboChat {
                             default:
                                 mediaHtml = `<a href="${result}" target="_blank" download style="color: #15C0E6;">Download File</a>`;
                         }
+                        // Remove any previous "Delivered" labels
+                        const previousDelivered = document.querySelectorAll('#roboChat-divChatViewMsg .roboChat-user small');
+                        previousDelivered.forEach(el => el.remove());
                         const timeFormat = new Date().toLocaleTimeString();
                         this.inMsg = document.querySelector('#roboChat-inMsg').value;
                         document.querySelector('#roboChat-divChatViewMsg').innerHTML += `
-          <div class="roboChat-user">
-            <div class="roboChat-imgContainer">
-              ${mediaHtml}
-              <div>
-                <span>${timeFormat}</span>
-                ${this.icons.tick}
-                ${this.icons.doubleTick}
-              </div>
-            </div>
-          </div>`;
+              <div class="roboChat-user">
+                <div class="roboChat-imgContainer">
+                  ${mediaHtml}
+                  <div>
+                    <span>${timeFormat}</span>
+                    ${this.icons.tick}
+                    ${this.icons.doubleTick}
+                  </div>
+                </div>
+                <small>Delivered</small>
+              </div>`;
                         document.querySelector("#roboChat-divFileToUpload").innerHTML = '';
                         document.querySelector("#roboChat-divFileToUpload").classList.add('roboChat-hidden');
                         document.querySelector("#roboChat-divFileToUpload").value = '';
@@ -520,8 +654,8 @@ class RoboChat {
                         })
                             .then(res => res.json())
                             .then(data => {
-                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-                            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
+                            latestMsgElement.querySelector('svg.tickIcon').classList.remove('roboChat-hidden');
                         });
                     });
                 };
@@ -549,6 +683,37 @@ class RoboChat {
         let cookies = document.cookie.split("; ").filter(val => val.startsWith("data="));
         const data = cookies.length ? cookies[0].replace("data=", "") : '{}';
         return cookies.length ? JSON.parse(data ? data : '{}') : {};
+    }
+    receiveMessage(message) {
+        if (document.visibilityState === "visible") {
+            console.log(`📩 Message "${message.status}" is READ (user is in chatroom ${message.chatSessionId})`);
+            const formData = new FormData();
+            formData.append('chatSessionId', message.chatSessionId);
+            formData.append('read_status', message.status);
+            formData.append('read_role', 'agent');
+            formData.append('role_action', 'agent_read');
+            formData.append('originUrl', this.originUrl);
+            fetch(this.serverUrl + '/msg-read-status', {
+                method: "POST",
+                body: formData
+            })
+                .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error: ${res.status}`);
+                }
+                return res.json(); // Parse JSON response
+            })
+                .then(result => {
+                console.log(result);
+            })
+                .catch(err => {
+                console.error("❌ Failed to update read status:", err);
+            });
+        }
+        else {
+            console.log(`📪 Message "unread" (user not in chatroom or tab is inactive for chatSession ${message.chatSessionId})`);
+            // Optionally trigger badge, notification, or store as unread
+        }
     }
     getChatHistory() {
         var _a;
@@ -710,6 +875,12 @@ class RoboChat {
                     hour12: false
                 });
                 let chatType = 'agent';
+                try {
+                    this.receiveMessage({ chatSessionId: data.data.chatSessionId, status: "read" });
+                }
+                catch (error) {
+                    console.error("Failed to mark message as read:", error);
+                }
                 this.scrollBtm(() => {
                     this.inMsg = document.querySelector('#roboChat-inMsg').value;
                     if (!data.data.agentMsg && data.data.attachment_type) {
@@ -755,6 +926,16 @@ class RoboChat {
             `;
                     }
                 });
+            });
+            this.socket.on(`msg-read-status-${this.clientUserId}`, (data) => {
+                console.log(data);
+                if (data.data.read_status === 'read') {
+                    // Select the last .roboChat-user small element
+                    const lastStatus = document.querySelector('#roboChat-divChatViewMsg .roboChat-user small:last-of-type');
+                    if (lastStatus) {
+                        lastStatus.textContent = 'Read';
+                    }
+                }
             });
             this.socket.on(`end-chat-session-${this.clientUserId}`, (data) => {
                 const currDate = new Date();
