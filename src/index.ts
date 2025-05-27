@@ -1,6 +1,7 @@
 declare var io: any;
 
 class RoboChat {
+  private chatStarted = false;
   private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
@@ -80,7 +81,7 @@ class RoboChat {
     <emoji-picker class="roboChat-hidden"></emoji-picker>
   `
 
-    // Add this as a method inside your RoboChat class
+  // Add this as a method inside your RoboChat class
   private showAlert(options: {
     title: string;
     message?: string;
@@ -284,7 +285,6 @@ class RoboChat {
     this.initEventListeners();
   }
 
-
   private initEventListeners() {
     const roboChat = this;
     const chatfield = document.querySelector("#chatfield");
@@ -356,6 +356,7 @@ class RoboChat {
           }
           
           const self = this;
+          let chatStarted = false;
           // // Add event listener for the inner start button - ADD THIS CODE HERE
           document.getElementById('roboChat-start-inner')?.addEventListener('click', function () {
             const nameInput = document.getElementById('roboChat-name') as HTMLInputElement;
@@ -415,6 +416,9 @@ class RoboChat {
 
               roboChat.clientUserId = data.clientUserId;
               roboChat.getChatHistory();
+
+              chatStarted = true; // ✅ SET THIS FLAG HERE
+              
             })
     
             const chatInput = document.querySelector('.roboChat-input-area');
@@ -468,6 +472,18 @@ class RoboChat {
     });
     
     document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev => {
+
+      if (!this.chatStarted) {
+        this.showAlert({
+          title: 'Chat Not Started',
+          message: 'Please start the chat first by providing your name and email.',
+          type: 'warning',
+          autoClose: 3000
+        });
+        return;
+      }
+
+
       let latestMsgElement: HTMLElement;
       this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
       const files = (document.querySelector('#roboChat-inFile')! as HTMLInputElement)!.files;
@@ -795,6 +811,39 @@ class RoboChat {
       return cookies.length?JSON.parse(data?data:'{}'):{};
   }
 
+  private receiveMessage(message: { status: string; chatSessionId: string }) {
+      if (document.visibilityState === "visible") {
+          console.log(`📩 Message "${message.status}" is READ (user is in chatroom ${message.chatSessionId})`);
+
+          const formData = new FormData(); 
+          formData.append('chatSessionId', message.chatSessionId);
+          formData.append('read_status', message.status);
+          formData.append('read_role', 'agent');
+          formData.append('role_action', 'agent_read');
+          formData.append('originUrl', this.originUrl);
+
+          fetch(this.serverUrl + '/msg-read-status', {
+            method: "POST",
+            body: formData
+          })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(`HTTP error: ${res.status}`);
+            }
+            return res.json(); // Parse JSON response
+          })
+          .then(result => {
+              console.log(result);
+          })
+          .catch(err => {
+            console.error("❌ Failed to update read status:", err);
+          });
+      } else {
+          console.log(`📪 Message "unread" (user not in chatroom or tab is inactive for chatSession ${message.chatSessionId})`);
+          // Optionally trigger badge, notification, or store as unread
+      }
+  }
+
   private getChatHistory() {
     fetch(this.serverUrl+'/get-client-chat-history?'+new URLSearchParams({
         "clientUserId": String(this.clientUserId),
@@ -978,85 +1027,73 @@ class RoboChat {
       })
     
     
-      this.socket.on(`agent-send-msg-${this.clientUserId}`, (data: any) => {
-          const currDate = new Date();
-          const timeFormat = currDate.toLocaleString("en-US", {
-              timeZone: this.timezone,
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false 
-          });
+      this.socket.on(`agent-send-msg-${this.clientUserId}`,(data: any)=>{
+        const currDate = new Date();
+        const timeFormat = currDate.toLocaleString("en-US", {
+            timeZone: this.timezone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false 
+        });
+    
+        let chatType = 'agent';
 
-          let chatType = 'agent';
+        try {
+          this.receiveMessage({ chatSessionId: data.data.chatSessionId, status: "read" });
+        } catch (error) {
+          console.error("Failed to mark message as read:", error);
+        }
+    
+        this.scrollBtm(()=>{
+    
+          this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
+          if(!data.data.agentMsg && data.data.attachment_type){
+    
+            const fileType = data.data.attachment_type
+    
+            console.log("Detected file type:", fileType);
+    
+            let mediaHtml = '';
+            if (fileType.startsWith('image/')) {
+              mediaHtml = `<img src="${fileType}" />`;
+            } else if (fileType.startsWith('application/')) {
+              mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
+            } else if(fileType.startsWith('video/')){
+              mediaHtml = `<span><video src="${fileType}" controls style="max-width: 200px; border-radius: 8px; padding: 10px;"></video></span>`;
+            } else if(fileType.startsWith('audio/')){
+              mediaHtml = `<span><audio src="${fileType}" controls style="max-width: 300px;max-height: 40px;padding: 8px;"></audio></span>`;
+            } else {
+              mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
+            }
 
-          // Insert typing loader before rendering the actual message
-          const loaderId = `typing-loader-${Date.now()}`;
-          const loaderHTML = `
-              <div id="${loaderId}" class="roboChat-${chatType}">
-                  <div class="message-loader-2">
-                      <div class="loader-bar-2"></div>
-                      <div class="loader-bar-2"></div>
-                      <div class="loader-bar-2"></div>
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+              <div class="roboChat-${chatType}">
+                <div class="roboChat-imgContainer">
+                  ${mediaHtml}
+                  <div>
+                    <span>${timeFormat}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+          else{
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+              <div class="roboChat-${chatType}">
+                  <div>
+                    <label>${data.data.agentMsg}</label>
+                    <span>
+                      <span>${timeFormat}</span>
+                    </span>
                   </div>
               </div>
-          `;
-          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += loaderHTML;
-
-          // Simulate delay or wrap logic inside scrollBtm
-          this.scrollBtm(() => {
-            
-              this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
-
-              // Remove the typing animation
-              const loaderElement = document.getElementById(loaderId);
-              if (loaderElement) {
-                  loaderElement.remove();
-              }
-
-              if (!data.data.agentMsg && data.data.attachment_type) {
-                  const fileType = data.data.attachment_type;
-                  console.log("Detected file type:", fileType);
-
-                  let mediaHtml = '';
-                  if (fileType.startsWith('image/')) {
-                      mediaHtml = `<img src="${fileType}" />`;
-                  } else if (fileType.startsWith('application/')) {
-                      mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
-                  } else if (fileType.startsWith('video/')) {
-                      mediaHtml = `<span><video src="${fileType}" controls style="max-width: 200px; border-radius: 8px; padding: 10px;"></video></span>`;
-                  } else if (fileType.startsWith('audio/')) {
-                      mediaHtml = `<span><audio src="${fileType}" controls style="max-width: 300px;max-height: 40px;padding: 8px;"></audio></span>`;
-                  } else {
-                      mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
-                  }
-
-                  document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
-                      <div class="roboChat-${chatType}">
-                          <div class="roboChat-imgContainer">
-                              ${mediaHtml}
-                              <div>
-                                  <span>${timeFormat}</span>
-                              </div>
-                          </div>
-                      </div>
-                  `;
-              } else {
-                  document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
-                      <div class="roboChat-${chatType}">
-                          <div>
-                              <label>${data.data.agentMsg}</label>
-                              <span>
-                                  <span>${timeFormat}</span>
-                              </span>
-                          </div>
-                      </div>
-                  `;
-              }
-          });
-      });
+            `;
+          }
+        })
+      })
 
       this.socket.on(`msg-read-status-${this.clientUserId}`, (data: any) => {
-        console.log(data.data.read_status);
+        console.log(data);
         
         if (data.data.read_status === 'read') {
           // Select the last .roboChat-user small element

@@ -101,6 +101,7 @@ class RoboChat {
         }
     }
     constructor(strSelector) {
+        this.chatStarted = false;
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
@@ -312,6 +313,7 @@ class RoboChat {
             `;
                     }
                     const self = this;
+                    let chatStarted = false;
                     // // Add event listener for the inner start button - ADD THIS CODE HERE
                     (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
                         const nameInput = document.getElementById('roboChat-name');
@@ -361,6 +363,7 @@ class RoboChat {
                             document.cookie = 'data=' + JSON.stringify(cookieData);
                             roboChat.clientUserId = data.clientUserId;
                             roboChat.getChatHistory();
+                            chatStarted = true; // ✅ SET THIS FLAG HERE
                         });
                         const chatInput = document.querySelector('.roboChat-input-area');
                         if (chatInput) {
@@ -403,6 +406,15 @@ class RoboChat {
             }
         });
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', ev => {
+            if (!this.chatStarted) {
+                this.showAlert({
+                    title: 'Chat Not Started',
+                    message: 'Please start the chat first by providing your name and email.',
+                    type: 'warning',
+                    autoClose: 3000
+                });
+                return;
+            }
             let latestMsgElement;
             this.inMsg = document.querySelector('#roboChat-inMsg').value;
             const files = document.querySelector('#roboChat-inFile').files;
@@ -672,6 +684,37 @@ class RoboChat {
         const data = cookies.length ? cookies[0].replace("data=", "") : '{}';
         return cookies.length ? JSON.parse(data ? data : '{}') : {};
     }
+    receiveMessage(message) {
+        if (document.visibilityState === "visible") {
+            console.log(`📩 Message "${message.status}" is READ (user is in chatroom ${message.chatSessionId})`);
+            const formData = new FormData();
+            formData.append('chatSessionId', message.chatSessionId);
+            formData.append('read_status', message.status);
+            formData.append('read_role', 'agent');
+            formData.append('role_action', 'agent_read');
+            formData.append('originUrl', this.originUrl);
+            fetch(this.serverUrl + '/msg-read-status', {
+                method: "POST",
+                body: formData
+            })
+                .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error: ${res.status}`);
+                }
+                return res.json(); // Parse JSON response
+            })
+                .then(result => {
+                console.log(result);
+            })
+                .catch(err => {
+                console.error("❌ Failed to update read status:", err);
+            });
+        }
+        else {
+            console.log(`📪 Message "unread" (user not in chatroom or tab is inactive for chatSession ${message.chatSessionId})`);
+            // Optionally trigger badge, notification, or store as unread
+        }
+    }
     getChatHistory() {
         var _a;
         fetch(this.serverUrl + '/get-client-chat-history?' + new URLSearchParams({
@@ -832,26 +875,14 @@ class RoboChat {
                     hour12: false
                 });
                 let chatType = 'agent';
-                // Insert typing loader before rendering the actual message
-                const loaderId = `typing-loader-${Date.now()}`;
-                const loaderHTML = `
-              <div id="${loaderId}" class="roboChat-${chatType}">
-                  <div class="message-loader-2">
-                      <div class="loader-bar-2"></div>
-                      <div class="loader-bar-2"></div>
-                      <div class="loader-bar-2"></div>
-                  </div>
-              </div>
-          `;
-                document.querySelector("#roboChat-divChatViewMsg").innerHTML += loaderHTML;
-                // Simulate delay or wrap logic inside scrollBtm
+                try {
+                    this.receiveMessage({ chatSessionId: data.data.chatSessionId, status: "read" });
+                }
+                catch (error) {
+                    console.error("Failed to mark message as read:", error);
+                }
                 this.scrollBtm(() => {
                     this.inMsg = document.querySelector('#roboChat-inMsg').value;
-                    // Remove the typing animation
-                    const loaderElement = document.getElementById(loaderId);
-                    if (loaderElement) {
-                        loaderElement.remove();
-                    }
                     if (!data.data.agentMsg && data.data.attachment_type) {
                         const fileType = data.data.attachment_type;
                         console.log("Detected file type:", fileType);
@@ -872,32 +903,32 @@ class RoboChat {
                             mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
                         }
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-                      <div class="roboChat-${chatType}">
-                          <div class="roboChat-imgContainer">
-                              ${mediaHtml}
-                              <div>
-                                  <span>${timeFormat}</span>
-                              </div>
-                          </div>
-                      </div>
-                  `;
+              <div class="roboChat-${chatType}">
+                <div class="roboChat-imgContainer">
+                  ${mediaHtml}
+                  <div>
+                    <span>${timeFormat}</span>
+                  </div>
+                </div>
+              </div>
+            `;
                     }
                     else {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-                      <div class="roboChat-${chatType}">
-                          <div>
-                              <label>${data.data.agentMsg}</label>
-                              <span>
-                                  <span>${timeFormat}</span>
-                              </span>
-                          </div>
-                      </div>
-                  `;
+              <div class="roboChat-${chatType}">
+                  <div>
+                    <label>${data.data.agentMsg}</label>
+                    <span>
+                      <span>${timeFormat}</span>
+                    </span>
+                  </div>
+              </div>
+            `;
                     }
                 });
             });
             this.socket.on(`msg-read-status-${this.clientUserId}`, (data) => {
-                console.log(data.data.read_status);
+                console.log(data);
                 if (data.data.read_status === 'read') {
                     // Select the last .roboChat-user small element
                     const lastStatus = document.querySelector('#roboChat-divChatViewMsg .roboChat-user small:last-of-type');
