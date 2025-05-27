@@ -313,7 +313,6 @@ class RoboChat {
             `;
                     }
                     const self = this;
-                    let chatStarted = false;
                     // // Add event listener for the inner start button - ADD THIS CODE HERE
                     (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
                         const nameInput = document.getElementById('roboChat-name');
@@ -353,7 +352,7 @@ class RoboChat {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 name: userData.name,
-                                emai: userData.email
+                                email: userData.email
                             })
                         })
                             .then(res => res.json())
@@ -363,7 +362,7 @@ class RoboChat {
                             document.cookie = 'data=' + JSON.stringify(cookieData);
                             roboChat.clientUserId = data.clientUserId;
                             roboChat.getChatHistory();
-                            chatStarted = true; // ✅ SET THIS FLAG HERE
+                            self.chatStarted = true;
                         });
                         const chatInput = document.querySelector('.roboChat-input-area');
                         if (chatInput) {
@@ -406,6 +405,7 @@ class RoboChat {
             }
         });
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', ev => {
+            console.log(this.chatStarted);
             if (!this.chatStarted) {
                 this.showAlert({
                     title: 'Chat Not Started',

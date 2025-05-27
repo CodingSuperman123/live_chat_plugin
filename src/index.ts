@@ -1,7 +1,7 @@
 declare var io: any;
 
 class RoboChat {
-  private chatStarted = false;
+  chatStarted = false;
   private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
@@ -356,7 +356,6 @@ class RoboChat {
           }
           
           const self = this;
-          let chatStarted = false;
           // // Add event listener for the inner start button - ADD THIS CODE HERE
           document.getElementById('roboChat-start-inner')?.addEventListener('click', function () {
             const nameInput = document.getElementById('roboChat-name') as HTMLInputElement;
@@ -402,7 +401,7 @@ class RoboChat {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 name: userData.name,
-                emai: userData.email
+                email: userData.email
               })
             })
             .then(res=>res.json())
@@ -417,7 +416,7 @@ class RoboChat {
               roboChat.clientUserId = data.clientUserId;
               roboChat.getChatHistory();
 
-              chatStarted = true; // ✅ SET THIS FLAG HERE
+              self.chatStarted = true;
               
             })
     
@@ -473,6 +472,7 @@ class RoboChat {
     
     document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev => {
 
+      console.log(this.chatStarted);
       if (!this.chatStarted) {
         this.showAlert({
           title: 'Chat Not Started',
