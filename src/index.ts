@@ -1,13 +1,13 @@
 declare var io: any;
 
 class RoboChat {
-  chatStarted = false;
+  private chatStarted = false;
   private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  // private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
-  private serverUrl = 'http://localhost:8000/api';
+  private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+  //private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -870,6 +870,7 @@ class RoboChat {
     })
     .then((data: any)=>{
       
+      this.chatStarted = true;
       this.chatHistory = data.usrChatHistory;
 
     
@@ -900,10 +901,7 @@ class RoboChat {
         });
     
         let chatType = val.role
-        if(chatType === 'system') {
-          chatType = 'msg';
-        }
-        else if(chatType === 'bot' || chatType === 'admin' || chatType === 'staff') {
+        if(chatType === 'bot' || chatType === 'admin' || chatType === 'staff' || chatType === 'system') {
           chatType = 'agent'
         }
         else if(chatType === 'client') {
@@ -971,21 +969,50 @@ class RoboChat {
     
     
       this.socket.on(`on-hold-chat-${this.clientUserId}`,(data: any)=> {
+        const currDate = new Date();
+        const timeFormat = currDate.toLocaleString("en-US", {
+            timeZone: this.timezone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false 
+        });
         (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = data.isOnHold;
         (document.querySelector("#roboChat-btnSendMsg") as HTMLButtonElement)!.disabled = data.isOnHold;
         
         clearInterval(this.onHoldInterval);
     
         if(data.isOnHold) {
-          console.log(data.isOnHold);
           this.onHoldScriptInd = 0;
           this.onHoldScript = data.onholdScript;
     
           this.scrollBtm(()=>{
-            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>chat is currently on-hold</label></div>`;
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+            <div class="roboChat-agent">
+                <div>
+                  <label>chat is currently on-hold</label>
+                  <span>
+                    <span>${timeFormat}</span>
+                  </span>
+                </div>
+            </div>`;
           })
           this.onHoldInterval = setInterval(()=>{
-            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>${this.onHoldScript[this.onHoldScriptInd]}</label></div>`;
+            const currDate = new Date();
+            const timeFormat = currDate.toLocaleString("en-US", {
+                timeZone: this.timezone,
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false 
+            });
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+            <div class="roboChat-agent">
+                <div>
+                  <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
+                  <span>
+                    <span>${timeFormat}</span>
+                  </span>
+                </div>
+            </div>`;
     
     
             fetch(this.serverUrl+'/on-hold-script',{
@@ -1009,20 +1036,61 @@ class RoboChat {
           },data.onholdTime)
         }
         else {
-          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>chat has resumed</label></div>`;
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+          <div class="roboChat-agent">
+            <div>
+              <label>chat has resumed</label>
+              <span>
+                <span>${timeFormat}</span>
+              </span>
+            </div>
+          </div>`;
         }
     
       })
     
       this.socket.on(`chat-transfer-${this.clientUserId}`,(transferToTeamName: string)=> {
+        const currDate = new Date();
+        const timeFormat = currDate.toLocaleString("en-US", {
+            timeZone: this.timezone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false 
+        });
+
         this.scrollBtm(()=>{
-          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>connecting you to a new agent</label></div>`;
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+          <div class="roboChat-agent">
+            <div>
+              <label>connecting you to a new agent</label>
+              <span>
+                <span>${timeFormat}</span>
+              </span>
+            </div>
+          </div>`;
         })
       })
     
       this.socket.on(`agent-accept-chat-${this.clientUserId}`,(data: any)=> {
+        const currDate = new Date();
+        const timeFormat = currDate.toLocaleString("en-US", {
+            timeZone: this.timezone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false 
+        });
+
         this.scrollBtm(()=>{
-          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>agent ${data.agentName} connected</label></div>`;
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+          <div class="roboChat-agent">
+            <div>
+              <label>${data.agentName}</label>
+              <span>
+                <span>${timeFormat}</span>
+              </span>
+            </div>
+          </div>`;
+
         })
       })
     
@@ -1093,7 +1161,6 @@ class RoboChat {
       })
 
       this.socket.on(`msg-read-status-${this.clientUserId}`, (data: any) => {
-        console.log(data);
         
         if (data.data.read_status === 'read') {
           // Select the last .roboChat-user small element
@@ -1125,7 +1192,16 @@ class RoboChat {
               </div>
             </div>    
           `
-          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `<div class="roboChat-msg"><label>chat session ended</label></div>`;
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+            <div class="roboChat-agent">
+              <div>
+                <label>chat session ended</label>
+                <span>
+                  ${`<span>${timeFormat}</span>`}
+                </span>
+              </div>
+            </div>
+          `;
 
           clearInterval(this.onHoldInterval);
         })
