@@ -535,7 +535,7 @@ class RoboChat {
             method: "POST",
             body: formData
           })
-          .then(res => res.json())
+          .then(res => res.json)
           .then(data => {
             //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
           });
@@ -1121,17 +1121,18 @@ class RoboChat {
     
             console.log("Detected file type:", fileType);
     
+            console.log(data,"lsdkjf");
             let mediaHtml = '';
             if (fileType.startsWith('image/')) {
-              mediaHtml = `<img src="${fileType}" />`;
+              mediaHtml = `<img src="${data.data.attachment}" />`;
             } else if (fileType.startsWith('application/')) {
-              mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
+              mediaHtml = `<span><a href="${data.data.attachment}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
             } else if(fileType.startsWith('video/')){
-              mediaHtml = `<span><video src="${fileType}" controls style="max-width: 200px; border-radius: 8px; padding: 10px;"></video></span>`;
+              mediaHtml = `<span><video src="${data.data.attachment}" controls style="max-width: 200px; border-radius: 8px; padding: 10px;"></video></span>`;
             } else if(fileType.startsWith('audio/')){
-              mediaHtml = `<span><audio src="${fileType}" controls style="max-width: 300px;max-height: 40px;padding: 8px;"></audio></span>`;
+              mediaHtml = `<span><audio src="${data.data.attachment}" controls style="max-width: 300px;max-height: 40px;padding: 8px;"></audio></span>`;
             } else {
-              mediaHtml = `<span><a href="${fileType}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
+              mediaHtml = `<span><a href="${data.data.attachment}" target="_blank" style="color: #15C0E6;" download>Download File</a></span>`;
             }
 
             document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
