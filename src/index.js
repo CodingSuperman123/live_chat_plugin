@@ -404,7 +404,6 @@ class RoboChat {
             }
         });
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', ev => {
-            console.log(this.chatStarted);
             if (!this.chatStarted) {
                 this.showAlert({
                     title: 'Chat Not Started',
@@ -645,6 +644,7 @@ class RoboChat {
                         document.querySelector("#roboChat-divFileToUpload").innerHTML = '';
                         document.querySelector("#roboChat-divFileToUpload").classList.add('roboChat-hidden');
                         document.querySelector("#roboChat-divFileToUpload").value = '';
+                        document.querySelector('#roboChat-inFile').value = '';
                         document.querySelector("#roboChat-inMsg").classList.remove('roboChat-hidden');
                         const latestMsgElement = document.querySelector('.roboChat-user:last-of-type');
                         fetch(this.serverUrl + '/msg-from-client', {

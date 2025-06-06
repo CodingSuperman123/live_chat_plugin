@@ -472,7 +472,6 @@ class RoboChat {
     
     document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev => {
 
-      console.log(this.chatStarted);
       if (!this.chatStarted) {
         this.showAlert({
           title: 'Chat Not Started',
@@ -757,6 +756,7 @@ class RoboChat {
             document.querySelector("#roboChat-divFileToUpload")!.innerHTML = '';
             document.querySelector("#roboChat-divFileToUpload")!.classList.add('roboChat-hidden');
             (document.querySelector("#roboChat-divFileToUpload") as HTMLInputElement)!.value = '';
+            (document.querySelector('#roboChat-inFile') as HTMLInputElement)!.value = '';
             document.querySelector("#roboChat-inMsg")!.classList.remove('roboChat-hidden');
 
             const latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
