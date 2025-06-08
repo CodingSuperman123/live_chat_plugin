@@ -1004,16 +1004,18 @@ class RoboChat {
                 minute: "2-digit",
                 hour12: false 
             });
-            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
-            <div class="roboChat-agent">
-                <div>
-                  <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
-                  <span>
-                    <span>${timeFormat}</span>
-                  </span>
-                </div>
-            </div>`;
-    
+
+            this.scrollBtm(()=>{
+              document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+              <div class="roboChat-agent">
+                  <div>
+                    <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
+                    <span>
+                      <span>${timeFormat}</span>
+                    </span>
+                  </div>
+              </div>`;
+            })
     
             fetch(this.serverUrl+'/on-hold-script',{
               method: 'POST',
@@ -1036,17 +1038,18 @@ class RoboChat {
           },data.onholdTime)
         }
         else {
-          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
-          <div class="roboChat-agent">
-            <div>
-              <label>chat has resumed</label>
-              <span>
-                <span>${timeFormat}</span>
-              </span>
-            </div>
-          </div>`;
+          this.scrollBtm(()=>{
+            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+            <div class="roboChat-agent">
+              <div>
+                <label>chat has resumed</label>
+                <span>
+                  <span>${timeFormat}</span>
+                </span>
+              </div>
+            </div>`;
+          })
         }
-    
       })
     
       this.socket.on(`chat-transfer-${this.clientUserId}`,(transferToTeamName: string)=> {
