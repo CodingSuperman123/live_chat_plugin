@@ -738,6 +738,10 @@ class RoboChat {
             .then((data) => {
             this.chatStarted = true;
             this.chatHistory = data.usrChatHistory;
+            this.onHoldScript = data.onHoldScript;
+            const onHoldSysMsg = this.chatHistory.filter(val => {
+                return val.role === 'system' && (val.message === 'chat is currently on-hold' || val.message === 'chat has resumed');
+            });
             //this.chatHistory!.forEach((val: any,ind: number)=> {
             //  val.forEach((vle: any,idx: number)=> {
             //    if(ind === 0 && idx === 0) {
@@ -985,12 +989,12 @@ class RoboChat {
                     else {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
               <div class="roboChat-${chatType}">
-                  <div>
-                    <label>${data.data.agentMsg}</label>
-                    <span>
-                      <span>${timeFormat}</span>
-                    </span>
-                  </div>
+                <div>
+                  <label>${data.data.agentMsg}</label>
+                  <span>
+                    <span>${timeFormat}</span>
+                  </span>
+                </div>
               </div>
             `;
                     }
@@ -1044,6 +1048,43 @@ class RoboChat {
                 //  item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
                 //});
             });
+            if (onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
+                this.onHoldInterval = setInterval(() => {
+                    const currDate = new Date();
+                    const timeFormat = currDate.toLocaleString("en-US", {
+                        timeZone: this.timezone,
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    });
+                    this.scrollBtm(() => {
+                        document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
+            <div class="roboChat-agent">
+                <div>
+                  <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
+                  <span>
+                    <span>${timeFormat}</span>
+                  </span>
+                </div>
+            </div>`;
+                    });
+                    fetch(this.serverUrl + '/on-hold-script', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            clientUserId: this.clientUserId,
+                            msg: this.onHoldScript[this.onHoldScriptInd]
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                    });
+                    this.onHoldScriptInd++;
+                    if (this.onHoldScriptInd === this.onHoldScript.length) {
+                        this.onHoldScriptInd = 0;
+                    }
+                }, data.onHoldScriptTime);
+            }
         });
     }
 }
