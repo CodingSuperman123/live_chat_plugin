@@ -457,12 +457,17 @@ button:active {
     /* Enhanced user message styling */
     &.roboChat-user {
       align-items: end;
+
       
       & > div {
         background: linear-gradient(135deg, var(--robo-primary), var(--robo-primary-light));
         color: white;
         border-bottom-right-radius: 6px;
         position: relative;
+
+        & > label {
+          line-break: anywhere;
+        }
       }
     }
 
