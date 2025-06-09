@@ -9,6 +9,7 @@ class RoboChat {
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('https://socket.roomx.xyz');
+        this.isOnHold = false;
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
       <div>
@@ -506,8 +507,10 @@ class RoboChat {
             }
         });
         document.querySelector("#roboChat-btnEmoji").addEventListener("click", ev => {
-            document.querySelector("emoji-picker").classList.toggle('roboChat-hidden');
-            this.repositionEmojiPicker();
+            if (!this.isOnHold) {
+                document.querySelector("emoji-picker").classList.toggle('roboChat-hidden');
+                this.repositionEmojiPicker();
+            }
         });
         window.addEventListener("resize", () => {
             this.repositionEmojiPicker();
@@ -831,12 +834,15 @@ class RoboChat {
                     minute: "2-digit",
                     hour12: false
                 });
+                document.querySelector("#roboChat-inMsg").value = '';
                 document.querySelector("#roboChat-inMsg").disabled = data.isOnHold;
                 document.querySelector("#roboChat-btnSendMsg").disabled = data.isOnHold;
                 clearInterval(this.onHoldInterval);
                 if (data.isOnHold) {
                     this.onHoldScriptInd = 0;
                     this.onHoldScript = data.onholdScript;
+                    this.isOnHold = true;
+                    document.querySelector("#roboChat-inFile").disabled = true;
                     this.scrollBtm(() => {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
             <div class="roboChat-agent">
@@ -885,6 +891,8 @@ class RoboChat {
                     }, data.onholdTime);
                 }
                 else {
+                    this.isOnHold = false;
+                    document.querySelector("#roboChat-inFile").disabled = false;
                     this.scrollBtm(() => {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
             <div class="roboChat-agent">
@@ -958,7 +966,6 @@ class RoboChat {
                     if (!data.data.agentMsg && data.data.attachment_type) {
                         const fileType = data.data.attachment_type;
                         console.log("Detected file type:", fileType);
-                        console.log(data, "lsdkjf");
                         let mediaHtml = '';
                         if (fileType.startsWith('image/')) {
                             mediaHtml = `<img src="${data.data.attachment}" />`;
@@ -1049,6 +1056,10 @@ class RoboChat {
                 //});
             });
             if (onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
+                this.isOnHold = true;
+                document.querySelector("#roboChat-inMsg").value = '';
+                document.querySelector("#roboChat-inMsg").disabled = true;
+                document.querySelector("#roboChat-inFile").disabled = true;
                 this.onHoldInterval = setInterval(() => {
                     const currDate = new Date();
                     const timeFormat = currDate.toLocaleString("en-US", {
