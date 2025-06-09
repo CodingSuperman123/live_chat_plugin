@@ -7,7 +7,6 @@ class RoboChat {
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
   private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
-  //private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -1092,7 +1091,7 @@ class RoboChat {
           document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
           <div class="roboChat-agent">
             <div>
-              <label>${data.agentName}</label>
+              <label>agent ${data.agentName} connected</label>
               <span>
                 <span>${timeFormat}</span>
               </span>

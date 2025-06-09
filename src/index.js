@@ -930,7 +930,7 @@ class RoboChat {
                     document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
           <div class="roboChat-agent">
             <div>
-              <label>${data.agentName}</label>
+              <label>agent ${data.agentName} connected</label>
               <span>
                 <span>${timeFormat}</span>
               </span>
