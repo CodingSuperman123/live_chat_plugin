@@ -7,6 +7,7 @@ class RoboChat {
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
   private serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+  //private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -16,6 +17,7 @@ class RoboChat {
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
   private socket = io('https://socket.roomx.xyz');
+  //private socket = io('http://localhost:3000');
   private element: HTMLElement | null;
   private isOnHold: boolean = false;
   private floatingChatIcon: string = `
@@ -973,6 +975,28 @@ class RoboChat {
         }
     
       })
+
+      this.socket.on(`send-on-hold-msg-${this.clientUserId}`,(data:any)=>{
+        const currDate = new Date();
+        const timeFormat = currDate.toLocaleString("en-US", {
+            timeZone: this.timezone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false 
+        });
+
+        this.scrollBtm(()=>{
+          document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+          <div class="roboChat-agent">
+              <div>
+                <label>${data.msg}</label>
+                <span>
+                  <span>${timeFormat}</span>
+                </span>
+              </div>
+          </div>`;
+        })
+      })
     
     
       this.socket.on(`on-hold-chat-${this.clientUserId}`,(data: any)=> {
@@ -987,7 +1011,7 @@ class RoboChat {
         (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = data.isOnHold;
         (document.querySelector("#roboChat-btnSendMsg") as HTMLButtonElement)!.disabled = data.isOnHold;
         
-        clearInterval(this.onHoldInterval);
+        //clearInterval(this.onHoldInterval);
     
         if(data.isOnHold) {
           this.onHoldScriptInd = 0;
@@ -1006,46 +1030,46 @@ class RoboChat {
                 </div>
             </div>`;
           })
-          this.onHoldInterval = setInterval(()=>{
-            const currDate = new Date();
-            const timeFormat = currDate.toLocaleString("en-US", {
-                timeZone: this.timezone,
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false 
-            });
+          //this.onHoldInterval = setInterval(()=>{
+          //  const currDate = new Date();
+          //  const timeFormat = currDate.toLocaleString("en-US", {
+          //      timeZone: this.timezone,
+          //      hour: "2-digit",
+          //      minute: "2-digit",
+          //      hour12: false 
+          //  });
 
-            this.scrollBtm(()=>{
-              document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
-              <div class="roboChat-agent">
-                  <div>
-                    <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
-                    <span>
-                      <span>${timeFormat}</span>
-                    </span>
-                  </div>
-              </div>`;
-            })
+          //  this.scrollBtm(()=>{
+          //    document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+          //    <div class="roboChat-agent">
+          //        <div>
+          //          <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
+          //          <span>
+          //            <span>${timeFormat}</span>
+          //          </span>
+          //        </div>
+          //    </div>`;
+          //  })
     
-            fetch(this.serverUrl+'/on-hold-script',{
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                clientUserId: this.clientUserId,
-                msg: this.onHoldScript[this.onHoldScriptInd]
-              })
-            })
-            .then(res=> res.json())
-            .then(data=>{
+          //  fetch(this.serverUrl+'/on-hold-script',{
+          //    method: 'POST',
+          //    headers: { 'Content-Type': 'application/json' },
+          //    body: JSON.stringify({
+          //      clientUserId: this.clientUserId,
+          //      msg: this.onHoldScript[this.onHoldScriptInd]
+          //    })
+          //  })
+          //  .then(res=> res.json())
+          //  .then(data=>{
     
-            })
+          //  })
     
     
-            this.onHoldScriptInd++;
-            if(this.onHoldScriptInd === this.onHoldScript.length) {
-              this.onHoldScriptInd = 0;
-            }
-          },data.onholdTime)
+          //  this.onHoldScriptInd++;
+          //  if(this.onHoldScriptInd === this.onHoldScript.length) {
+          //    this.onHoldScriptInd = 0;
+          //  }
+          //},data.onholdTime)
         }
         else {
           this.isOnHold = false;
@@ -1218,7 +1242,7 @@ class RoboChat {
             </div>
           `;
 
-          clearInterval(this.onHoldInterval);
+          //clearInterval(this.onHoldInterval);
         })
       });
     
@@ -1235,46 +1259,46 @@ class RoboChat {
         (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = true;
         (document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = true;
 
-        this.onHoldInterval = setInterval(()=>{
-          const currDate = new Date();
-          const timeFormat = currDate.toLocaleString("en-US", {
-              timeZone: this.timezone,
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false 
-          });
+        //this.onHoldInterval = setInterval(()=>{
+        //  const currDate = new Date();
+        //  const timeFormat = currDate.toLocaleString("en-US", {
+        //      timeZone: this.timezone,
+        //      hour: "2-digit",
+        //      minute: "2-digit",
+        //      hour12: false 
+        //  });
 
-          this.scrollBtm(()=>{
-            document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
-            <div class="roboChat-agent">
-                <div>
-                  <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
-                  <span>
-                    <span>${timeFormat}</span>
-                  </span>
-                </div>
-            </div>`;
-          })
+        //  this.scrollBtm(()=>{
+        //    document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+        //    <div class="roboChat-agent">
+        //        <div>
+        //          <label>${this.onHoldScript[this.onHoldScriptInd]}</label>
+        //          <span>
+        //            <span>${timeFormat}</span>
+        //          </span>
+        //        </div>
+        //    </div>`;
+        //  })
     
-          fetch(this.serverUrl+'/on-hold-script',{
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              clientUserId: this.clientUserId,
-              msg: this.onHoldScript[this.onHoldScriptInd]
-            })
-          })
-          .then(res=> res.json())
-          .then(data=>{
+        //  fetch(this.serverUrl+'/on-hold-script',{
+        //    method: 'POST',
+        //    headers: { 'Content-Type': 'application/json' },
+        //    body: JSON.stringify({
+        //      clientUserId: this.clientUserId,
+        //      msg: this.onHoldScript[this.onHoldScriptInd]
+        //    })
+        //  })
+        //  .then(res=> res.json())
+        //  .then(data=>{
     
-          })
+        //  })
     
     
-          this.onHoldScriptInd++;
-          if(this.onHoldScriptInd === this.onHoldScript.length) {
-            this.onHoldScriptInd = 0;
-          }
-        },data.onHoldScriptTime)
+        //  this.onHoldScriptInd++;
+        //  if(this.onHoldScriptInd === this.onHoldScript.length) {
+        //    this.onHoldScriptInd = 0;
+        //  }
+        //},data.onHoldScriptTime)
       }
     })
   }
