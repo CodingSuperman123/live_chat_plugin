@@ -465,9 +465,9 @@ button:active {
         border-bottom-right-radius: 6px;
         position: relative;
 
-        & > label {
+        /* & > label {
           line-break: anywhere;
-        }
+        } */
       }
     }
 
@@ -481,7 +481,7 @@ button:active {
         & > label {
           font-weight: 400;
           line-height: 1.5;
-          line-break: anywhere;
+          /* line-break: anywhere; */
         }
     }
   }
