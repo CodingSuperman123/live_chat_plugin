@@ -409,6 +409,8 @@ class RoboChat {
                 });
             }
         });
+
+        
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', ev => {
             if (!this.chatStarted) {
                 this.showAlert({
@@ -457,12 +459,14 @@ class RoboChat {
                     this.inMsg = "";
                     document.querySelector('#roboChat-inMsg').value = this.inMsg;
                     latestMsgElement = document.querySelector('.roboChat-user:last-of-type');
+                    this.showTyping();
                     fetch(this.serverUrl + '/msg-from-client', {
                         method: "POST",
                         body: formData
                     })
                         .then(res => res.json)
                         .then(data => {
+                          this.hideTyping();
                         //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
                     });
                 }
@@ -498,12 +502,14 @@ class RoboChat {
                         formData.append('media_url', result);
                         formData.append('media_content_type', file.type);
                         latestMsgElement = document.querySelector('.roboChat-user:last-of-type');
+                        this.showTyping();
                         fetch(this.serverUrl + '/msg-from-client', {
                             method: "POST",
                             body: formData
                         })
                             .then(res => res.json())
                             .then(data => {
+                              this.hideTyping();
                             //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
                         });
                     };
@@ -1122,6 +1128,26 @@ class RoboChat {
                 //},data.onHoldScriptTime)
             }
         });
+    }
+    showTyping() {
+      if (!document.querySelector("#roboChat-typing")) {
+        const typingHtml = `
+          <div id="roboChat-typing" class="roboChat-agent">
+            <div class="roboChat-bubble typing">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        `;
+        document.querySelector("#roboChat-divChatViewMsg").insertAdjacentHTML('beforeend', typingHtml);
+        this.scrollBtm(); // Scroll to bottom if your function exists
+      }
+    }
+
+    hideTyping() {
+      const typingEl = document.querySelector("#roboChat-typing");
+      if (typingEl) typingEl.remove();
     }
 }
 //# sourceMappingURL=index.js.map
