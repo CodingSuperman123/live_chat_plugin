@@ -429,6 +429,12 @@ class RoboChat {
           });
         });
       }
+
+      document.addEventListener('focus',ev=>{
+        if(window.getComputedStyle(document.querySelector(".roboChat-floating-chatbox") as HTMLElement).display !== 'none') {
+          document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer")!.scrollHeight;
+        }
+      })
     });
 
 

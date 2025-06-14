@@ -371,6 +371,11 @@ class RoboChat {
                     });
                 });
             }
+            document.addEventListener('focus', ev => {
+                if (window.getComputedStyle(document.querySelector(".roboChat-floating-chatbox")).display !== 'none') {
+                    document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight;
+                }
+            });
         });
         document.addEventListener('click', ev => {
             // if(!document.querySelector('.roboChat-floating-chatbox.roboChat-hidden') && !(ev.target! as HTMLElement).closest('.roboChat-floating-chatbox') && !(ev.target! as HTMLElement).closest('.roboChat-floating-icon')) {
