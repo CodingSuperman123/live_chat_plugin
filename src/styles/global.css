@@ -280,7 +280,7 @@ button:active {
 }
 
 #roboChat-btnSendMsg > svg {
-  fill: var(--robo-primary);
+  fill: #162e62;
   transition: all 0.3s ease;
 }
 
