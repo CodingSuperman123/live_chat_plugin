@@ -490,7 +490,7 @@ button:active {
   & > .roboChat-msg {
     display: flex;
     justify-content: center;
-    color: var(--robo-text-secondary);
+    color: #6c757d;
     margin: 12px 0;
     font-size: 0.85rem;
     animation: fadeIn 0.5s ease;
@@ -682,7 +682,7 @@ button:active {
     }
     
     &::-webkit-scrollbar-thumb:hover {
-      background: var(--robo-text-secondary);
+      background: #6c757d;
     }
   }
 
@@ -698,7 +698,7 @@ button:active {
     backdrop-filter: blur(10px);
 
     & svg {
-      fill: var(--robo-text-secondary);
+      fill: #6c757d;
       transition: all 0.3s ease;
     }
 
