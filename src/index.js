@@ -1077,6 +1077,10 @@ class RoboChat {
           `;
                     //clearInterval(this.onHoldInterval);
                 });
+                this.isOnHold = false;
+                document.querySelector("#roboChat-inMsg").value = '';
+                document.querySelector("#roboChat-inMsg").disabled = false;
+                document.querySelector("#roboChat-inFile").disabled = false;
             });
             this.socket.on(`msg-read-${this.clientUserId}`, (data) => {
                 //document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
@@ -1084,7 +1088,7 @@ class RoboChat {
                 //  item.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
                 //});
             });
-            if (onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
+            if (data.isLastChatSessionOnHold && onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
                 this.isOnHold = true;
                 document.querySelector("#roboChat-inMsg").value = '';
                 document.querySelector("#roboChat-inMsg").disabled = true;

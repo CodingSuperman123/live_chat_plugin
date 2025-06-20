@@ -883,7 +883,6 @@ class RoboChat {
       }
     })
     .then((data: any)=>{
-      
       this.chatStarted = true;
       this.chatHistory = data.usrChatHistory;
       this.onHoldScript = data.onHoldScript;
@@ -1254,6 +1253,12 @@ class RoboChat {
 
           //clearInterval(this.onHoldInterval);
         })
+
+
+        this.isOnHold = false;
+        (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.value = '';
+        (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = false;
+        (document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = false;
       });
     
       this.socket.on(`msg-read-${this.clientUserId}`,(data: any)=>{
@@ -1263,7 +1268,7 @@ class RoboChat {
         //});
       })
 
-      if(onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
+      if(data.isLastChatSessionOnHold && onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
         this.isOnHold = true;
         (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.value = '';
         (document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = true;
