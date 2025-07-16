@@ -871,18 +871,18 @@ class RoboChat {
                     this.onHoldScriptInd = 0;
                     this.onHoldScript = data.onholdScript;
                     this.isOnHold = true;
-                    document.querySelector("#roboChat-inFile").disabled = true;
-                    this.scrollBtm(() => {
-                        document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-            <div class="roboChat-agent">
-                <div>
-                  <label>chat is currently on-hold</label>
-                  <span>
-                    <span>${timeFormat}</span>
-                  </span>
-                </div>
-            </div>`;
-                    });
+                    //(document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = true;
+                    //this.scrollBtm(()=>{
+                    //  document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+                    //  <div class="roboChat-agent">
+                    //      <div>
+                    //        <label>chat is currently on-hold</label>
+                    //        <span>
+                    //          <span>${timeFormat}</span>
+                    //        </span>
+                    //      </div>
+                    //  </div>`;
+                    //})
                     //this.onHoldInterval = setInterval(()=>{
                     //  const currDate = new Date();
                     //  const timeFormat = currDate.toLocaleString("en-US", {
@@ -921,18 +921,18 @@ class RoboChat {
                 }
                 else {
                     this.isOnHold = false;
-                    document.querySelector("#roboChat-inFile").disabled = false;
-                    this.scrollBtm(() => {
-                        document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-            <div class="roboChat-agent">
-              <div>
-                <label>chat has resumed</label>
-                <span>
-                  <span>${timeFormat}</span>
-                </span>
-              </div>
-            </div>`;
-                    });
+                    //(document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = false;
+                    //this.scrollBtm(()=>{
+                    //  document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+                    //  <div class="roboChat-agent">
+                    //    <div>
+                    //      <label>chat has resumed</label>
+                    //      <span>
+                    //        <span>${timeFormat}</span>
+                    //      </span>
+                    //    </div>
+                    //  </div>`;
+                    //})
                 }
             });
             this.socket.on(`chat-transfer-${this.clientUserId}`, (transferToTeamName) => {
@@ -1078,9 +1078,9 @@ class RoboChat {
                     //clearInterval(this.onHoldInterval);
                 });
                 this.isOnHold = false;
-                document.querySelector("#roboChat-inMsg").value = '';
-                document.querySelector("#roboChat-inMsg").disabled = false;
-                document.querySelector("#roboChat-inFile").disabled = false;
+                //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.value = '';
+                //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = false;
+                //(document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = false;
             });
             this.socket.on(`msg-read-${this.clientUserId}`, (data) => {
                 //document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
@@ -1090,9 +1090,9 @@ class RoboChat {
             });
             if (data.isLastChatSessionOnHold && onHoldSysMsg.length && onHoldSysMsg.at(-1).message === 'chat is currently on-hold') {
                 this.isOnHold = true;
-                document.querySelector("#roboChat-inMsg").value = '';
-                document.querySelector("#roboChat-inMsg").disabled = true;
-                document.querySelector("#roboChat-inFile").disabled = true;
+                //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.value = '';
+                //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = true;
+                //(document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = true;
                 //this.onHoldInterval = setInterval(()=>{
                 //  const currDate = new Date();
                 //  const timeFormat = currDate.toLocaleString("en-US", {
