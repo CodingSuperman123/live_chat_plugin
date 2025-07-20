@@ -5,7 +5,7 @@ class RoboChat {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'https://limegreen-wasp-689058.hostingersite.com/api';
+        this.serverUrl = 'https://aidochats.com/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
         this.socket = io('https://socket.roomx.xyz');
