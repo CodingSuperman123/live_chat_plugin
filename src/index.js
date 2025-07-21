@@ -8,7 +8,7 @@ class RoboChat {
         this.serverUrl = 'https://demo-bo.aidochats.com/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
-        this.socket = io('demo-socket.aidochats.com');
+        this.socket = io('https://demo-socket.aidochats.com');
         this.isOnHold = false;
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">

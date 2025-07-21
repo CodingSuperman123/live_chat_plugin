@@ -16,7 +16,7 @@ class RoboChat {
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
-  private socket = io('demo-socket.aidochats.com');
+  private socket = io('https://demo-socket.aidochats.com');
   //private socket = io('http://localhost:3000');
   private element: HTMLElement | null;
   private isOnHold: boolean = false;
