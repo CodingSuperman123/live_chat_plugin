@@ -6,7 +6,7 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'https://aidochats.com/api';
+  private serverUrl = 'https://demo-bo.aidochats.com/api';
   //private serverUrl = 'http://localhost:8000/api';
   private clientUserId?: string;
   private chatHistory?: Array<any>;
@@ -16,7 +16,7 @@ class RoboChat {
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
-  private socket = io('https://socket.roomx.xyz');
+  private socket = io('demo-socket.aidochats.com');
   //private socket = io('http://localhost:3000');
   private element: HTMLElement | null;
   private isOnHold: boolean = false;

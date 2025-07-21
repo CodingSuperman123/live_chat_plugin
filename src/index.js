@@ -5,10 +5,10 @@ class RoboChat {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'https://aidochats.com/api';
+        this.serverUrl = 'https://demo-bo.aidochats.com/api';
         this.currentMsg = [];
         this.maxMsgCount = 20;
-        this.socket = io('https://socket.roomx.xyz');
+        this.socket = io('demo-socket.aidochats.com');
         this.isOnHold = false;
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
