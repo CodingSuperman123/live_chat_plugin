@@ -1,14 +1,16 @@
 "use strict";
 class RoboChat {
-    constructor(strSelector) {
+    constructor(strSelector, options) {
         this.chatStarted = false;
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
         this.onHoldScript = [];
-        this.serverUrl = 'https://bo.aidochats.com/api';
+        this.serverUrl = 'https://dev-xyz-bo.aidochats.com/api';
+        //private serverUrl = 'http://localhost:8000/api';
+        this.token = "";
         this.currentMsg = [];
         this.maxMsgCount = 20;
-        this.socket = io('https://socket.aidochats.com');
+        this.socket = io('https://dev-xyz-socket.aidochats.com');
         this.isOnHold = false;
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
@@ -100,6 +102,7 @@ class RoboChat {
         this.element.classList.add("roboChat");
         this.originUrl = window.location.origin === 'null' ? 'localhost' : window.location.origin;
         this.clientUserId = this.getCookieData().roboChatClientUserId;
+        this.token = options.token;
         if (this.clientUserId) {
             this.getChatHistory();
         }
@@ -346,13 +349,13 @@ class RoboChat {
                         //  </div>
                         //`;
                         const userData = { name, email };
-                        console.log('User data:', userData);
                         fetch(roboChat.serverUrl + '/register-chat-plugin', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 name: userData.name,
-                                email: userData.email
+                                email: userData.email,
+                                token: self.token
                             })
                         })
                             .then(res => res.json())
@@ -731,7 +734,8 @@ class RoboChat {
         fetch(this.serverUrl + '/get-client-chat-history?' + new URLSearchParams({
             "clientUserId": String(this.clientUserId),
             "role": "client",
-            "originUrl": (_a = this.originUrl) !== null && _a !== void 0 ? _a : ""
+            "originUrl": (_a = this.originUrl) !== null && _a !== void 0 ? _a : "",
+            "token": this.token
         }))
             .then(res => {
             if (!res.ok) {

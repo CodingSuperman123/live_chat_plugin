@@ -6,8 +6,9 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'https://bo.aidochats.com/api';
+  private serverUrl = 'https://dev-xyz-bo.aidochats.com/api';
   //private serverUrl = 'http://localhost:8000/api';
+  private token = "";
   private clientUserId?: string;
   private chatHistory?: Array<any>;
   private originUrl: string;
@@ -16,7 +17,7 @@ class RoboChat {
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
-  private socket = io('https://socket.aidochats.com');
+  private socket = io('https://dev-xyz-socket.aidochats.com');
   //private socket = io('http://localhost:3000');
   private element: HTMLElement | null;
   private isOnHold: boolean = false;
@@ -224,11 +225,12 @@ class RoboChat {
     `
   }
 
-  constructor(strSelector: string) {
+  constructor(strSelector: string,options: any) {
     this.element = document.querySelector(strSelector);
     this.element!.classList.add("roboChat");
     this.originUrl = window.location.origin === 'null'?'localhost':window.location.origin;
     this.clientUserId = this.getCookieData().roboChatClientUserId;
+    this.token = options.token;
 
 
 
@@ -271,6 +273,7 @@ class RoboChat {
   }
 
   private init() {
+
     const svg: SVGSVGElement = document.createElementNS("http://www.w3.org/2000/svg","svg");
     const path: SVGPathElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 
@@ -352,9 +355,6 @@ class RoboChat {
                   </div>
                 </div>
             `;
-
-
-          
           }
           
           const self = this;
@@ -396,14 +396,14 @@ class RoboChat {
             //`;
     
             const userData = { name, email };
-            console.log('User data:', userData);
 
             fetch(roboChat.serverUrl+'/register-chat-plugin',{
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 name: userData.name,
-                email: userData.email
+                email: userData.email,
+                token: self.token
               })
             })
             .then(res=>res.json())
@@ -411,7 +411,7 @@ class RoboChat {
               let cookieData: any = roboChat.getCookieData()
 
 
-            cookieData['roboChatClientUserId'] = data.clientUserId;
+              cookieData['roboChatClientUserId'] = data.clientUserId;
 
               document.cookie = 'data='+JSON.stringify(cookieData);
 
@@ -862,7 +862,8 @@ class RoboChat {
     fetch(this.serverUrl+'/get-client-chat-history?'+new URLSearchParams({
         "clientUserId": String(this.clientUserId),
         "role": "client",
-        "originUrl": this.originUrl??""
+        "originUrl": this.originUrl??"",
+        "token": this.token
       })    
     )
     .then(res => {
