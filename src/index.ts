@@ -6,21 +6,25 @@ class RoboChat {
   private onHoldScriptInd: number = 0;
   private onHoldScript: Array<string> =  [];
   private onHoldInterval: any;
-  private serverUrl = 'https://dev-xyz-bo.aidochats.com/api';
+  private serverUrl = 'https://dev-xyz-bo.aidochats.com/api/v1';
   //private serverUrl = 'http://localhost:8000/api';
   private token = "";
+  private firstName?:string;
+  private lastName?: string;
   private clientUserId?: string;
   private chatHistory?: Array<any>;
-  private originUrl: string;
   private chatSessionId?: number; 
   private clientEmail?: string;
   private inMsg?: string;
   private currentMsg: Array<any> = [];
   private maxMsgCount: number = 20;
   private socket = io('https://dev-xyz-socket.aidochats.com');
+  private tempToken = null;
   //private socket = io('http://localhost:3000');
   private element: HTMLElement | null;
   private isOnHold: boolean = false;
+  private currChatId?: string;
+  private currSessionId?: string;
   private floatingChatIcon: string = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
       <div>
@@ -228,20 +232,15 @@ class RoboChat {
   constructor(strSelector: string,options: any) {
     this.element = document.querySelector(strSelector);
     this.element!.classList.add("roboChat");
-    this.originUrl = window.location.origin === 'null'?'localhost':window.location.origin;
-    this.clientUserId = this.getCookieData().roboChatClientUserId;
+    this.clientUserId = options.clientUserId;
+    this.clientEmail = options.email;
+    this.firstName = options.firstName;
+    this.lastName = options.lastName;
     this.token = options.token;
+    this.currChatId = options.chatId;
 
 
 
-    if(this.clientUserId) {
-      this.getChatHistory();
-    }
-    
-
-    if(!this.originUrl || this.originUrl === 'null'){
-      throw new Error("Please enter a valid origin url");
-    }
     this.init();
   }
 
@@ -287,7 +286,41 @@ class RoboChat {
     svg.append(path);
     this.element!.append(svg);
     document.querySelector("body")!.innerHTML += this.floatingChatIcon;
+
     this.initEventListeners();
+  }
+
+
+  private async genTempToken(){
+    try{
+      const res = await fetch(this.serverUrl+'/generate-chat-token',{
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+ this.token
+        },
+        body: JSON.stringify({
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.clientEmail,
+          clientUserId: this.clientUserId,
+        })
+      });
+
+      const data = await res.json();
+
+      this.tempToken = data.token;
+      this.clientUserId = data.clientUserId;
+      this.chatStarted = true;
+
+
+
+      return data
+    }
+    catch(err){
+      throw err;
+    }
+
   }
 
   private initEventListeners() {
@@ -306,13 +339,13 @@ class RoboChat {
 
     
       if (startButton && chatfield && messageView) {
-        startButton.addEventListener("click", () => {
+        startButton.addEventListener("click",async () => {
           chatfield.classList.remove("roboChat-hidden");
           startButton.classList.add("roboChat-hidden");
     
           // Add agent message
 
-          if(!roboChat.getCookieData().roboChatClientUserId) {
+          if(!this.clientUserId && !this.clientEmail) {
             messageView.innerHTML += `
                 <div class="roboChat-agent" id="chat-form">
                   <div class="roboChat-container">
@@ -356,10 +389,14 @@ class RoboChat {
                 </div>
             `;
           }
+          else {
+            await roboChat.genTempToken();
+            roboChat.getChatHistory();
+          }
           
           const self = this;
           // // Add event listener for the inner start button - ADD THIS CODE HERE
-          document.getElementById('roboChat-start-inner')?.addEventListener('click', function () {
+          document.getElementById('roboChat-start-inner')?.addEventListener('click', async function () {
             const nameInput = document.getElementById('roboChat-name') as HTMLInputElement;
             const emailInput = document.getElementById('roboChat-email') as HTMLInputElement;
             const name = nameInput?.value.trim() || '';
@@ -397,30 +434,14 @@ class RoboChat {
     
             const userData = { name, email };
 
-            fetch(roboChat.serverUrl+'/register-chat-plugin',{
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                name: userData.name,
-                email: userData.email,
-                token: self.token
-              })
-            })
-            .then(res=>res.json())
-            .then(data=>{
-              let cookieData: any = roboChat.getCookieData()
+            roboChat.firstName = name;
+            roboChat.clientEmail = email;
 
 
-              cookieData['roboChatClientUserId'] = data.clientUserId;
-
-              document.cookie = 'data='+JSON.stringify(cookieData);
-
-              roboChat.clientUserId = data.clientUserId;
+            if(!roboChat.clientUserId){
+              await roboChat.genTempToken();
               roboChat.getChatHistory();
-
-              self.chatStarted = true;
-              
-            })
+            }
     
             const chatInput = document.querySelector('.roboChat-input-area');
             if (chatInput) {
@@ -478,7 +499,7 @@ class RoboChat {
       }
     });
     
-    document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click', ev => {
+    document.querySelector('#roboChat-btnSendMsg')!.addEventListener('click',async ev => {
 
       if (!this.chatStarted) {
         this.showAlert({
@@ -498,7 +519,6 @@ class RoboChat {
       if (this.inMsg || files!.length) {
         const formData = new FormData(); 
         formData.append('clientUserId', String(roboChat.clientUserId));
-        formData.append('originUrl', roboChat.originUrl);
         
         const currDate = new Date();
         const timeFormat = currDate.toLocaleString("en-US", {
@@ -539,15 +559,7 @@ class RoboChat {
           this.showTyping();
           
 
-          fetch(this.serverUrl + '/msg-from-client', {
-            method: "POST",
-            body: formData
-          })
-          .then(res => res.json)
-          .then(data => {
-            this.hideTyping();
-            //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
-          });
+          await roboChat.clientSendMsg(formData);
 
         } else {
           const file = files![0];
@@ -590,15 +602,7 @@ class RoboChat {
             latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
             this.showTyping();
 
-            fetch(this.serverUrl + '/msg-from-client', {
-              method: "POST",
-              body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-              this.hideTyping();
-              //latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');        
-            });
+            this.clientSendMsg(formData)
 
           };
 
@@ -717,7 +721,6 @@ class RoboChat {
 
         let formData = new FormData();
         formData.append('clientUserId', String(this.clientUserId));
-        formData.append('originUrl', this.originUrl);
 
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -726,7 +729,7 @@ class RoboChat {
           formData.append('media_content_type', file.type);
           formData.append('media_url', result);
 
-          this.scrollBtm(() => {
+          this.scrollBtm(async (): Promise<void> => {
             const fileType = this.detectFileType(result);
             let mediaHtml = '';
 
@@ -775,15 +778,11 @@ class RoboChat {
 
             const latestMsgElement = document.querySelector('.roboChat-user:last-of-type') as HTMLElement;
 
-            fetch(this.serverUrl + '/msg-from-client', {
-              method: "POST",
-              body: formData
-            })
-              .then(res => res.json())
-              .then(data => {
-                latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-                latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
-              });
+            await this.clientSendMsg(formData);
+
+            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+            latestMsgElement.querySelector('svg.tickIcon')!.classList.remove('roboChat-hidden');
+
           });
         };
 
@@ -793,6 +792,38 @@ class RoboChat {
 
     
 
+  }
+
+
+  private async clientSendMsg(formData: FormData): Promise<Response> {
+    try{
+      if(!formData.has('chatId')){
+        formData.append('chatId', String(this.currChatId));
+      }
+
+      const res: Response = await fetch(this.serverUrl + '/msg-from-client', {
+        method: "POST",
+        headers: { 'Authorization': 'Bearer '+ this.tempToken },
+        body: formData
+      })
+      
+      const data = await res.json();
+
+      this.hideTyping();
+
+      if(data.status === "failed"){
+        throw data
+      }
+      return data;
+    }
+    catch(err: any){
+      if(err!.errType && err!.errType === 'token expired'){
+        await this.genTempToken();
+        await this.clientSendMsg(formData);
+      }
+
+      throw err
+    }
   }
 
   private repositionEmojiPicker(): void {
@@ -818,12 +849,12 @@ class RoboChat {
     }
   }
 
-  private getCookieData(): any {
-      let cookies = document.cookie.split("; ").filter(val => val.startsWith("data="));
-      const data = cookies.length?cookies[0].replace("data=",""):'{}';
+  //private getCookieData(): any {
+  //    let cookies = document.cookie.split("; ").filter(val => val.startsWith("data="));
+  //    const data = cookies.length?cookies[0].replace("data=",""):'{}';
 
-      return cookies.length?JSON.parse(data?data:'{}'):{};
-  }
+  //    return cookies.length?JSON.parse(data?data:'{}'):{};
+  //}
 
   private receiveMessage(message: { status: string; chatSessionId: string }) {
       if (document.visibilityState === "visible") {
@@ -834,24 +865,27 @@ class RoboChat {
           formData.append('read_status', message.status);
           formData.append('read_role', 'agent');
           formData.append('role_action', 'agent_read');
-          formData.append('originUrl', this.originUrl);
 
-          fetch(this.serverUrl + '/msg-read-status', {
-            method: "POST",
-            body: formData
-          })
-          .then(res => {
-            if (!res.ok) {
-              throw new Error(`HTTP error: ${res.status}`);
-            }
-            return res.json(); // Parse JSON response
-          })
-          .then(result => {
-              console.log(result);
-          })
-          .catch(err => {
-            console.error("❌ Failed to update read status:", err);
-          });
+          //fetch(this.serverUrl + '/msg-read-status', {
+          //  method: "POST",
+          //  headers: { 
+          //    'Content-Type': 'application/json',
+          //    'Authorization': 'Bearer '+ this.tempToken
+          //  },
+          //  body: formData
+          //})
+          //.then(res => {
+          //  if (!res.ok) {
+          //    throw new Error(`HTTP error: ${res.status}`);
+          //  }
+          //  return res.json(); // Parse JSON response
+          //})
+          //.then(result => {
+          //    console.log(result);
+          //})
+          //.catch(err => {
+          //  console.error("❌ Failed to update read status:", err);
+          //});
       } else {
           console.log(`📪 Message "unread" (user not in chatroom or tab is inactive for chatSession ${message.chatSessionId})`);
           // Optionally trigger badge, notification, or store as unread
@@ -859,21 +893,20 @@ class RoboChat {
   }
 
   private getChatHistory() {
-    fetch(this.serverUrl+'/get-client-chat-history?'+new URLSearchParams({
-        "clientUserId": String(this.clientUserId),
-        "role": "client",
-        "originUrl": this.originUrl??"",
-        "token": this.token
-      })    
-    )
+    fetch(this.serverUrl+'/get-client-chat-history',{
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+ this.tempToken
+      },
+    })
     .then(res => {
       if(!res.ok) {
         res.json().then((err: any)=>{
           if(err.msg && err.msg === 'user not exist') {
-            const cookieData: any = this.getCookieData()
+            //const cookieData: any = this.getCookieData()
 
-            cookieData['roboChatClientUserId'] = null
-            document.cookie = 'data='+JSON.stringify(cookieData)
+            //cookieData['roboChatClientUserId'] = null
+            //document.cookie = 'data='+JSON.stringify(cookieData)
           }
         })
 
@@ -887,6 +920,7 @@ class RoboChat {
       this.chatStarted = true;
       this.chatHistory = data.usrChatHistory;
       this.onHoldScript = data.onHoldScript;
+      this.currChatId = data.chatId;
 
       const onHoldSysMsg = this.chatHistory!.filter(val=>{
         return val.role === 'system' && (val.message === 'chat is currently on-hold' || val.message === 'chat has resumed');
