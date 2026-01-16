@@ -282,6 +282,8 @@ button:active {
 #roboChat-btnSendMsg > svg {
   fill: #162e62;
   transition: all 0.3s ease;
+  min-width: 10px;
+  min-height: 10px;
 }
 
 #roboChat-btnSendMsg:hover > svg {
