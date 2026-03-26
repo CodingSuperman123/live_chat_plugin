@@ -764,7 +764,7 @@ class RoboChat {
         }
     }
     getChatHistory() {
-        fetch(this.serverUrl + '/get-client-chat-history', {
+        fetch(this.serverUrl + '/get-client-chat-history?' + `chatId=${this.currChatId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + this.tempToken
@@ -787,7 +787,7 @@ class RoboChat {
             .then((data) => {
             this.chatStarted = true;
             this.chatHistory = data.usrChatHistory;
-            this.onHoldScript = data.onHoldScript;
+            //this.onHoldScript = data.onHoldScript;
             this.currChatId = data.chatId;
             const onHoldSysMsg = this.chatHistory.filter(val => {
                 return val.role === 'system' && (val.message === 'chat is currently on-hold' || val.message === 'chat has resumed');

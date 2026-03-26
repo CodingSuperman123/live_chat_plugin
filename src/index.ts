@@ -893,7 +893,7 @@ class RoboChat {
   }
 
   private getChatHistory() {
-    fetch(this.serverUrl+'/get-client-chat-history',{
+    fetch(this.serverUrl+'/get-client-chat-history?'+`chatId=${this.currChatId}`,{
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': 'Bearer '+ this.tempToken
@@ -919,7 +919,7 @@ class RoboChat {
     .then((data: any)=>{
       this.chatStarted = true;
       this.chatHistory = data.usrChatHistory;
-      this.onHoldScript = data.onHoldScript;
+      //this.onHoldScript = data.onHoldScript;
       this.currChatId = data.chatId;
 
       const onHoldSysMsg = this.chatHistory!.filter(val=>{
