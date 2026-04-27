@@ -294,19 +294,31 @@ class RoboChat {
         if (chatfield) {
             chatfield.classList.add('roboChat-hidden');
         }
-        document.addEventListener("DOMContentLoaded", () => {
-            const startButton = document.querySelector("#btn-start-chat");
-            const chatfield = document.querySelector("#chatfield");
-            const messageView = document.querySelector("#roboChat-divChatViewMsg");
-            const timeFormat = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            if (startButton && chatfield && messageView) {
-                startButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
-                    var _a;
-                    chatfield.classList.remove("roboChat-hidden");
-                    startButton.classList.add("roboChat-hidden");
-                    // Add agent message
-                    if (!this.clientUserId && !this.clientEmail) {
-                        messageView.innerHTML += `
+        const startButton = document.querySelector("#btn-start-chat");
+        //const chatfield = document.querySelector<HTMLElement>("#chatfield");
+        const messageView = document.querySelector("#roboChat-divChatViewMsg");
+        const timeFormat = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (startButton && chatfield && messageView) {
+            startButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                chatfield.classList.remove("roboChat-hidden");
+                startButton.classList.add("roboChat-hidden");
+                if (this.currChatId) {
+                    const res = yield fetch(this.serverUrl + '/get-chat-user-details/' + this.currChatId, {
+                        method: "GET",
+                        headers: { 'Authorization': 'Bearer ' + this.tempToken },
+                    });
+                    const data = yield res.json();
+                    if (data.status === 'failed') {
+                        throw data;
+                    }
+                    this.clientUserId = data.clientUserId;
+                    this.clientEmail = data.clientEmail;
+                    this.firstName = data.firstName;
+                    this.lastName = data.lastName;
+                }
+                if (!this.clientUserId && !this.clientEmail) {
+                    messageView.innerHTML += `
                 <div class="roboChat-agent" id="chat-form">
                   <div class="roboChat-container">
                     <div class="roboChat-form" aria-label="Chat start form">
@@ -348,65 +360,64 @@ class RoboChat {
                   </div>
                 </div>
             `;
-                    }
-                    else {
-                        yield roboChat.genTempToken();
-                        roboChat.getChatHistory();
-                    }
-                    const self = this;
-                    // // Add event listener for the inner start button - ADD THIS CODE HERE
-                    (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
-                        return __awaiter(this, void 0, void 0, function* () {
-                            const nameInput = document.getElementById('roboChat-name');
-                            const emailInput = document.getElementById('roboChat-email');
-                            const name = (nameInput === null || nameInput === void 0 ? void 0 : nameInput.value.trim()) || '';
-                            const email = (emailInput === null || emailInput === void 0 ? void 0 : emailInput.value.trim()) || '';
-                            if (!name || !email) {
-                                self.showAlert({
-                                    title: 'Input Required',
-                                    message: 'Please enter both name and email to start the chat',
-                                    type: 'warning',
-                                    autoClose: 3000
-                                });
-                                return;
-                            }
-                            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                            const formContainer = document.querySelector('#chat-form');
-                            if (formContainer) {
-                                formContainer.remove();
-                            }
-                            //messageView.innerHTML += `
-                            //  <div class="roboChat-agent">
-                            //    <div class="roboChat-message">
-                            //      <div class="roboChat-content">
-                            //        Welcome, ${name}! How can I assist you today?
-                            //      </div>
-                            //      <div class="roboChat-timestamp">
-                            //        <span>${currentTime}</span>
-                            //      </div>
-                            //    </div>
-                            //  </div>
-                            //`;
-                            const userData = { name, email };
-                            roboChat.firstName = name;
-                            roboChat.clientEmail = email;
-                            if (!roboChat.clientUserId) {
-                                yield roboChat.genTempToken();
-                                roboChat.getChatHistory();
-                            }
-                            const chatInput = document.querySelector('.roboChat-input-area');
-                            if (chatInput) {
-                                chatInput.classList.remove('roboChat-hidden');
-                            }
-                        });
-                    });
-                }));
-            }
-            document.addEventListener('visibilitychange', ev => {
-                if (document.visibilityState === 'visible' && window.getComputedStyle(document.querySelector(".roboChat-floating-chatbox")).display !== 'none') {
-                    document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight;
                 }
-            });
+                else {
+                    yield roboChat.genTempToken();
+                    roboChat.getChatHistory();
+                }
+                const self = this;
+                // // Add event listener for the inner start button - ADD THIS CODE HERE
+                (_a = document.getElementById('roboChat-start-inner')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        const nameInput = document.getElementById('roboChat-name');
+                        const emailInput = document.getElementById('roboChat-email');
+                        const name = (nameInput === null || nameInput === void 0 ? void 0 : nameInput.value.trim()) || '';
+                        const email = (emailInput === null || emailInput === void 0 ? void 0 : emailInput.value.trim()) || '';
+                        if (!name || !email) {
+                            self.showAlert({
+                                title: 'Input Required',
+                                message: 'Please enter both name and email to start the chat',
+                                type: 'warning',
+                                autoClose: 3000
+                            });
+                            return;
+                        }
+                        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const formContainer = document.querySelector('#chat-form');
+                        if (formContainer) {
+                            formContainer.remove();
+                        }
+                        //messageView.innerHTML += `
+                        //  <div class="roboChat-agent">
+                        //    <div class="roboChat-message">
+                        //      <div class="roboChat-content">
+                        //        Welcome, ${name}! How can I assist you today?
+                        //      </div>
+                        //      <div class="roboChat-timestamp">
+                        //        <span>${currentTime}</span>
+                        //      </div>
+                        //    </div>
+                        //  </div>
+                        //`;
+                        const userData = { name, email };
+                        roboChat.firstName = name;
+                        roboChat.clientEmail = email;
+                        if (!roboChat.clientUserId) {
+                            yield roboChat.genTempToken();
+                            roboChat.getChatHistory();
+                        }
+                        const chatInput = document.querySelector('.roboChat-input-area');
+                        if (chatInput) {
+                            chatInput.classList.remove('roboChat-hidden');
+                        }
+                    });
+                });
+            }));
+        }
+        document.addEventListener('visibilitychange', ev => {
+            if (document.visibilityState === 'visible' && window.getComputedStyle(document.querySelector(".roboChat-floating-chatbox")).display !== 'none') {
+                document.querySelector("#roboChat-divChatViewMsgContainer").scrollTop = document.querySelector("#roboChat-divChatViewMsgContainer").scrollHeight;
+            }
         });
         document.addEventListener('click', ev => {
             // if(!document.querySelector('.roboChat-floating-chatbox.roboChat-hidden') && !(ev.target! as HTMLElement).closest('.roboChat-floating-chatbox') && !(ev.target! as HTMLElement).closest('.roboChat-floating-icon')) {
@@ -428,18 +439,16 @@ class RoboChat {
             document.querySelector('#roboChat-divChatLoading').classList.add('roboChat-hidden');
             document.querySelector('#roboChat-divChatViewMsg').classList.remove('roboChat-hidden');
         });
-        document.addEventListener('DOMContentLoaded', () => {
-            const input = document.querySelector('#roboChat-inMsg');
-            const sendBtn = document.querySelector('#roboChat-btnSendMsg');
-            if (input && sendBtn) {
-                input.addEventListener('keydown', (ev) => {
-                    if (ev.key === 'Enter' && !ev.shiftKey) {
-                        ev.preventDefault();
-                        sendBtn.dispatchEvent(new Event('click'));
-                    }
-                });
-            }
-        });
+        const input = document.querySelector('#roboChat-inMsg');
+        const sendBtn = document.querySelector('#roboChat-btnSendMsg');
+        if (input && sendBtn) {
+            input.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter' && !ev.shiftKey) {
+                    ev.preventDefault();
+                    sendBtn.dispatchEvent(new Event('click'));
+                }
+            });
+        }
         document.querySelector('#roboChat-btnSendMsg').addEventListener('click', (ev) => __awaiter(this, void 0, void 0, function* () {
             if (!this.chatStarted) {
                 this.showAlert({
@@ -480,7 +489,6 @@ class RoboChat {
                     ${this.icons.tick}
                   </span>
                 </div>
-                <small>Delivered</small>
               </div>`;
                     });
                     formData.append('msg', String(this.inMsg));
@@ -835,10 +843,11 @@ class RoboChat {
                 }
                 if (!val.message && val.media_url) {
                     document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-            <div class="roboChat-${chatType}">
+            <div class="roboChat-${chatType} msgContainer" data-msg-id="${val.id}">
               <div class="roboChat-imgContainer">
                 ${mediaHtml}
                 <div>
+                  ${val.is_edited ? '<span>edited</span>' : ''}
                   <span>${timeFormat}</span>
                   ${chatType === 'user' ? this.icons.tick : ''}
                   ${chatType === 'user' ? this.icons.doubleTick : ''}
@@ -849,11 +858,12 @@ class RoboChat {
                 }
                 else {
                     document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-            <div class="roboChat-${chatType}">
+            <div class="roboChat-${chatType} msgContainer" data-msg-id="${val.id}">
               ${chatType === 'msg' ? `<label>${val.message}</label>` : `
                 <div>
                   <label>${val.message}</label>
                   <span>
+                    ${val.is_edited ? '<span>edited</span>' : ''}
                     ${chatType !== 'msg' ? `<span>${timeFormat}</span>` : ''}
                     ${chatType === 'user' ? this.icons.tick + this.icons.doubleTick : ''}
                     ${chatType === 'user' ? this.icons.doubleTick : ''}
@@ -872,6 +882,16 @@ class RoboChat {
                     //  lastUserChat.querySelector('svg.doubleTickIcon')!.classList.remove('roboChat-hidden');
                     //}
                 }
+            });
+            this.socket.on(`message-edited-${this.clientUserId}`, (data) => {
+                var _a, _b, _c;
+                (_a = document.querySelector(`.msgContainer[data-msg-id='${data.msgId}'] label`)) === null || _a === void 0 ? void 0 : _a.textContent = data.msg;
+                (_b = document.querySelector(`.msgContainer[data-msg-id='${data.msgId}'] span > span:first-of-type`)) === null || _b === void 0 ? void 0 : _b.remove();
+                (_c = document.querySelector(`.msgContainer[data-msg-id='${data.msgId}'] span`)) === null || _c === void 0 ? void 0 : _c.insertAdjacentHTML("afterbegin", `<span>edited</span>`);
+            });
+            this.socket.on(`message-deleted-${this.clientUserId}`, (data) => {
+                var _a;
+                (_a = document.querySelector(`.msgContainer[data-msg-id='${data.msgId}']`)) === null || _a === void 0 ? void 0 : _a.remove();
             });
             this.socket.on(`send-on-hold-msg-${this.clientUserId}`, (data) => {
                 const currDate = new Date();
@@ -993,26 +1013,26 @@ class RoboChat {
           </div>`;
                 });
             });
-            this.socket.on(`agent-accept-chat-${this.clientUserId}`, (data) => {
-                const currDate = new Date();
-                const timeFormat = currDate.toLocaleString("en-US", {
-                    timeZone: this.timezone,
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                });
-                this.scrollBtm(() => {
-                    document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-          <div class="roboChat-agent">
-            <div>
-              <label>agent ${data.agentName} connected</label>
-              <span>
-                <span>${timeFormat}</span>
-              </span>
-            </div>
-          </div>`;
-                });
-            });
+            //this.socket.on(`agent-accept-chat-${this.clientUserId}`,(data: any)=> {
+            //  const currDate = new Date();
+            //  const timeFormat = currDate.toLocaleString("en-US", {
+            //      timeZone: this.timezone,
+            //      hour: "2-digit",
+            //      minute: "2-digit",
+            //      hour12: false 
+            //  });
+            //  this.scrollBtm(()=>{
+            //    document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+            //    <div class="roboChat-agent">
+            //      <div>
+            //        <label>agent ${data.agentName} connected</label>
+            //        <span>
+            //          <span>${timeFormat}</span>
+            //        </span>
+            //      </div>
+            //    </div>`;
+            //  })
+            //})
             this.socket.on(`agent-send-msg-${this.clientUserId}`, (data) => {
                 const currDate = new Date();
                 const timeFormat = currDate.toLocaleString("en-US", {
@@ -1062,7 +1082,7 @@ class RoboChat {
                     }
                     else {
                         document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-              <div class="roboChat-${chatType}">
+              <div class="roboChat-${chatType} msgContainer" data-msg-id="${data.data.msgId}">
                 <div>
                   <label>${data.data.agentMsg}</label>
                   <span>
@@ -1083,43 +1103,43 @@ class RoboChat {
                     }
                 }
             });
-            this.socket.on(`end-chat-session-${this.clientUserId}`, (data) => {
-                const currDate = new Date();
-                const timeFormat = currDate.toLocaleString("en-US", {
-                    timeZone: this.timezone,
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                });
-                this.scrollBtm(() => {
-                    this.inMsg = document.querySelector('#roboChat-inMsg').value;
-                    document.querySelector('#roboChat-divChatViewMsg').innerHTML += `
-            <div class="roboChat-agent">
-              <div>
-                <label>${data.msg}</label>
-                <span>
-                  ${`<span>${timeFormat}</span>`}
-                </span>
-              </div>
-            </div>    
-          `;
-                    document.querySelector("#roboChat-divChatViewMsg").innerHTML += `
-            <div class="roboChat-agent">
-              <div>
-                <label>chat session ended</label>
-                <span>
-                  ${`<span>${timeFormat}</span>`}
-                </span>
-              </div>
-            </div>
-          `;
-                    //clearInterval(this.onHoldInterval);
-                });
-                this.isOnHold = false;
-                //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.value = '';
-                //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = false;
-                //(document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = false;
-            });
+            //this.socket.on(`end-chat-session-${this.clientUserId}`,(data: any)=>{
+            //  const currDate = new Date();
+            //  const timeFormat = currDate.toLocaleString("en-US", {
+            //      timeZone: this.timezone,
+            //      hour: "2-digit",
+            //      minute: "2-digit",
+            //      hour12: false 
+            //  });
+            //  this.scrollBtm(()=>{
+            //    this.inMsg = (document.querySelector('#roboChat-inMsg') as HTMLInputElement)!.value;
+            //    document.querySelector('#roboChat-divChatViewMsg')!.innerHTML += `
+            //      <div class="roboChat-agent">
+            //        <div>
+            //          <label>${data.msg}</label>
+            //          <span>
+            //            ${`<span>${timeFormat}</span>`}
+            //          </span>
+            //        </div>
+            //      </div>    
+            //    `
+            //    document.querySelector("#roboChat-divChatViewMsg")!.innerHTML += `
+            //      <div class="roboChat-agent">
+            //        <div>
+            //          <label>chat session ended</label>
+            //          <span>
+            //            ${`<span>${timeFormat}</span>`}
+            //          </span>
+            //        </div>
+            //      </div>
+            //    `;
+            //    //clearInterval(this.onHoldInterval);
+            //  })
+            //  this.isOnHold = false;
+            //  //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.value = '';
+            //  //(document.querySelector("#roboChat-inMsg") as HTMLInputElement)!.disabled = false;
+            //  //(document.querySelector("#roboChat-inFile") as HTMLInputElement)!.disabled = false;
+            //});
             this.socket.on(`msg-read-${this.clientUserId}`, (data) => {
                 //document.querySelectorAll(`.roboChat-user:has(.doubleTickIcon.roboChat-hidden)`)!.forEach(item=> {
                 //  item.querySelector('svg.tickIcon')!.classList.add('roboChat-hidden');

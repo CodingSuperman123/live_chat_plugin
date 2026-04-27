@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<head>
+  <link rel="stylesheet" href="styles/global.css">
+</head>
+<body>
+  <div id="roboChat"></div>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+  <script src="index.js"></script>
+  <script>
+    const roboChat = new RoboChat("#roboChat",{
+      "token": "7ae15ec1-b0a9-4e4d-a372-3a81a160f8ac", //Get token from CRM portal 
+      "email": "27982868@email.com", //Required for first time chatting user 
+      "firstName": "xby1995", //Optional filed for first time user  
+      //"lastName": "6950679f-2ccc-4ffa-a5d8-7e6e2ecd02a3", //Optional filed for first time user 
+      //"clientUserId": "36a16d5e-7a53-4047-ab0f-febffb67832a", //Optional field, filled if wish to use previous created user to chat 
+      //"chatId": "27df5126-1b8e-4bd8-92cb-80e8f04197f9", //Optional field, filled it to get previous chat history  
+    })
+  </script>
+</body>
+<footer>
+</footer>
