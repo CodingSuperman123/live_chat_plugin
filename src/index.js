@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 class RoboChat {
     constructor(strSelector, options) {
+        var _a;
         this.chatStarted = false;
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.onHoldScriptInd = 0;
@@ -25,7 +26,7 @@ class RoboChat {
         this.floatingChatIcon = `
     <div class="roboChat-floating-chatbox roboChat-hidden">
       <div>
-        <label>RoboChat</label>
+        <label id="lblBotName">RoboChat</label>
         <span id="spanChatboxClose">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
             <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
@@ -116,6 +117,7 @@ class RoboChat {
         this.lastName = options.lastName;
         this.token = options.token;
         this.currChatId = options.chatId;
+        this.chatBotName = (_a = options.botName) !== null && _a !== void 0 ? _a : 'RoboChat';
         this.init();
     }
     // Add this as a method inside your RoboChat class
@@ -152,7 +154,7 @@ class RoboChat {
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
         </svg>`;
         }
-        // Create alert HTML
+        // Create kklert HTML
         alertOverlay.innerHTML = `
       <div class="roboChat-alert roboChat-alert-${type}">
         <div class="roboChat-alert-close">
@@ -250,6 +252,7 @@ class RoboChat {
         }
     }
     init() {
+        var _a;
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -259,6 +262,7 @@ class RoboChat {
         svg.append(path);
         this.element.append(svg);
         document.querySelector("body").innerHTML += this.floatingChatIcon;
+        (_a = document.querySelector('#lblBotName')) === null || _a === void 0 ? void 0 : _a.innerText = this.chatBotName;
         this.initEventListeners();
     }
     genTempToken() {
@@ -1209,6 +1213,17 @@ class RoboChat {
         const typingEl = document.querySelector("#roboChat-typing");
         if (typingEl)
             typingEl.remove();
+    }
+    getChatId() {
+        return this.currChatId;
+    }
+    getUserDetails() {
+        return {
+            clientUserId: this.clientUserId,
+            email: this.clientEmail,
+            firstName: this.firstName,
+            lastName: this.lastName
+        };
     }
 }
 //# sourceMappingURL=index.js.map
