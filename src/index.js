@@ -85,6 +85,11 @@ class RoboChat {
     </div>
     <emoji-picker class="roboChat-hidden"></emoji-picker>
   `;
+        this.styles = {
+            primaryColor: "#162e62",
+            positionBtm: "3vw",
+            positionRight: "3vw"
+        };
         this.defaultOpt = {
             "chat-pos": 'right',
             "chat-floating-icon": {
@@ -118,6 +123,7 @@ class RoboChat {
         this.token = options.token;
         this.currChatId = options.chatId;
         this.chatBotName = (_a = options.botName) !== null && _a !== void 0 ? _a : 'RoboChat';
+        this.styles = Object.assign(Object.assign({}, this.styles), options.styles);
         this.init();
     }
     // Add this as a method inside your RoboChat class
@@ -252,7 +258,7 @@ class RoboChat {
         }
     }
     init() {
-        var _a;
+        var _a, _b, _c, _d, _e;
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -263,6 +269,11 @@ class RoboChat {
         this.element.append(svg);
         document.querySelector("body").innerHTML += this.floatingChatIcon;
         (_a = document.querySelector('#lblBotName')) === null || _a === void 0 ? void 0 : _a.innerText = this.chatBotName;
+        document.documentElement.style.setProperty('--robo-primary', this.styles.primaryColor);
+        (_b = document.querySelector('#roboChat')) === null || _b === void 0 ? void 0 : _b.style.setProperty('bottom', this.styles.positionBtm);
+        (_c = document.querySelector('#roboChat')) === null || _c === void 0 ? void 0 : _c.style.setProperty('right', this.styles.positionBtm);
+        (_d = document.querySelector('.roboChat-floating-chatbox')) === null || _d === void 0 ? void 0 : _d.style.setProperty('right', this.styles.positionBtm);
+        (_e = document.querySelector('.roboChat-floating-chatbox')) === null || _e === void 0 ? void 0 : _e.style.setProperty('right', this.styles.positionBtm);
         this.initEventListeners();
     }
     genTempToken() {

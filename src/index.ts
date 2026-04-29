@@ -87,7 +87,12 @@ class RoboChat {
       </div>
     </div>
     <emoji-picker class="roboChat-hidden"></emoji-picker>
-  `
+  `;
+  private styles = {
+    primaryColor: "#162e62",
+    positionBtm: "3vw",
+    positionRight: "3vw"
+  }
 
   // Add this as a method inside your RoboChat class
   private showAlert(options: {
@@ -240,6 +245,7 @@ class RoboChat {
     this.token = options.token;
     this.currChatId = options.chatId;
     this.chatBotName = options.botName??'RoboChat';
+    this.styles =  { ...this.styles, ...options.styles };
 
 
 
@@ -291,6 +297,13 @@ class RoboChat {
     document.querySelector("body")!.innerHTML += this.floatingChatIcon;
 
     document.querySelector('#lblBotName')?.innerText = this.chatBotName;
+
+
+    document.documentElement.style.setProperty('--robo-primary', this.styles.primaryColor);
+    document.querySelector('#roboChat')?.style.setProperty('bottom', this.styles.positionBtm);
+    document.querySelector('#roboChat')?.style.setProperty('right', this.styles.positionBtm);
+    document.querySelector('.roboChat-floating-chatbox')?.style.setProperty('right', this.styles.positionBtm);
+    document.querySelector('.roboChat-floating-chatbox')?.style.setProperty('right', this.styles.positionBtm);
 
     this.initEventListeners();
   }
