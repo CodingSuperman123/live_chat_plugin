@@ -1045,7 +1045,7 @@ emoji-picker {
 }
 
 /* Button styling */
-.button-wrapper {
+.roboChat-floating-chatbox .button-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 8px;
@@ -1075,18 +1075,18 @@ emoji-picker {
   }
 }
 
-.chatform_header {
+#chat-form .chatform_header {
     font-size: 14px;
     font-weight: normal;
     margin: 0px;
 }
 
-.chatbox-controls {
+.roboChat-floating-chatbox .chatbox-controls {
   display: flex;
   gap: 8px;
 }
 
-.chatbox-controls span {
+.roboChat-floating-chatbox .chatbox-controls span {
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -1094,7 +1094,7 @@ emoji-picker {
   justify-content: center;
 }
 
-.chatbox-controls span:hover {
+.roboChat-floating-chatbox .chatbox-controls span:hover {
   background-color: #ddd;
   border-radius: 4px;
 }
@@ -1279,7 +1279,7 @@ emoji-picker {
   max-width: fit-content;
 }
 
-.message-loader-2{
+.roboChat-floating-chatbox .message-loader-2{
 	align-items: center;
 	border: 1px solid $light-bg;
 	border-radius: 15px;
